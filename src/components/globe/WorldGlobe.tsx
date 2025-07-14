@@ -50,7 +50,7 @@ export function WorldGlobe({
         <>
           <ObservableGlobe
             mode={observableMode}
-            radius={3} // Smaller default size for better UX
+            radius={4} // Smaller default size for better UX
             animated={animateWireframes}
             threedee={false} // Always disable DEM elevation for smooth sphere
             debugMode={false} // Set to true to test basic sphere rendering

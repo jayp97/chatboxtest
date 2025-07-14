@@ -264,7 +264,7 @@ export function ObservableGlobe({
         geometry={sphereGeometry}
         material={sphereMaterial}
         position={[0, 0, 0]}
-        rotation={[0, Math.PI, 0]} // Rotate 180° to put Europe/Northern Hemisphere at top
+        rotation={[Math.PI, 0, 0]} // Flip upright so Northern Hemisphere is at top
         castShadow
         receiveShadow
       />
