@@ -1,347 +1,283 @@
-# Living World Globe Implementation Specification
+# Advanced 3D Globe Implementation Specification
 
 ## Date: 2025-07-14
 
-## Feature: Interactive 3D Globe Companion for GEOSYS Terminal
+## Feature: Advanced 3D Globe with DEM Elevation and TopoJSON Data
 
 ## Overview
 
-This specification details the implementation of an interactive 3D globe that will be displayed on the right side of the page, complementing the terminal UI on the left. The globe will visualise geographic data, show user preferences, and create an immersive "living world" experience.
+This specification details the implementation of a sophisticated 3D globe using **Observable Three.js techniques**, **World Atlas TopoJSON data**, **DEM elevation mapping**, and **bathymetry textures**. The globe features realistic terrain elevation, accurate coastlines, and neon wireframe aesthetics for the terminal UI.
 
-## Layout Architecture
+## Design Philosophy
 
-### Screen Division
-- **Left Side (60% width)**: Terminal UI
-- **Right Side (40% width)**: Living World Globe
-- **Responsive Breakpoint**: Stack vertically on screens < 1024px
+- **Observable Technique**: Based on proven @wolfiex implementation with DEM elevation
+- **World Atlas Data**: Using topojson world-atlas@2 for accurate geographic boundaries
+- **3D Terrain**: DEM-based elevation mapping for realistic topography
+- **Dual Aesthetics**: Realistic textures + neon wireframe modes
+- **Performance Optimized**: LOD system with tube geometries and efficient rendering
 
-## Implementation Phases
+## Technical Foundation
 
-### Phase 1: Foundation and Layout Setup
+### Data Sources
+- **TopoJSON**: `world-atlas@2` from CDN (land-50m.json, countries-110m.json)
+- **DEM Elevation**: `/public/world/dem.jpg` for terrain height mapping
+- **Bathymetry**: `/public/world/bathymetry_diffuse_4k.jpg` for ocean textures
+- **Alpha Map**: `/public/world/bathymetry_bw_composite_4k.jpg` for transparency
 
-#### Step 1.1: Layout Restructuring
-- [x] Update `src/app/page.tsx` to create split-screen layout
-- [x] Create flex container with proper proportions (60/40 split)
-- [x] Implement responsive breakpoints for mobile devices
-- [ ] Add resize handler for dynamic adjustments
-- [x] Create backdrop gradient for visual separation
+### Core Functions (Observable Technique)
+```typescript
+// Primary coordinate conversion
+function vertex([longitude, latitude], radius) {
+  const lambda = (longitude * Math.PI) / 180;
+  const phi = (latitude * Math.PI) / 180;
+  return new THREE.Vector3(
+    radius * Math.cos(phi) * Math.cos(lambda),
+    radius * Math.sin(phi),
+    -radius * Math.cos(phi) * Math.sin(lambda)
+  );
+}
 
-#### Step 1.2: Three.js Integration
-- [x] Install required dependencies:
-  ```bash
-  pnpm install three @react-three/fiber @react-three/drei @react-three/postprocessing
-  pnpm install -D @types/three
-  ```
-- [x] Set up Three.js canvas container
-- [x] Configure WebGL renderer settings
-- [x] Implement performance monitoring
-- [x] Add fallback for WebGL unsupported browsers
+// DEM-based elevation vertex positioning
+function avertex(v, demData, radius) {
+  const lat = (Math.asin(v.y / radius) * 180) / Math.PI || 0;
+  const lon = (Math.atan2(v.x, v.z) * 180) / Math.PI + 270;
+  
+  const elevation = getDEMHeight(lon, lat, demData);
+  return vertex([lon - 270, lat], radius - 1 + 6 * elevation ** 1.6);
+}
 
-#### Step 1.3: Globe Container Component
-- [x] Create `src/components/globe/GlobeContainer.tsx`
-- [x] Implement proper sizing and aspect ratio
-- [x] Add loading state with terminal-style loader
-- [x] Set up error boundaries for 3D rendering
-- [x] Create performance optimisation controls
-
-### Phase 2: 3D Globe Core Implementation
-
-#### Step 2.1: Earth Mesh Creation
-- [x] Update `src/components/globe/WorldGlobe.tsx` with Three.js implementation
-- [x] Create Earth sphere geometry (segments: 64x64)
-- [x] Implement custom shader for atmosphere effect
-- [ ] Add earth texture mapping:
-  - [ ] Day texture (8K downsampled to 2K for performance)
-  - [ ] Night texture with city lights
-  - [ ] Normal map for terrain elevation
-  - [ ] Specular map for water reflection
-  - [ ] Cloud layer with transparency
-
-#### Step 2.2: Lighting System
-- [x] Add directional light for sun simulation
-- [x] Implement ambient light for base illumination
-- [ ] Create dynamic light position based on real time
-- [ ] Add rim lighting for atmospheric glow
-- [x] Implement shadow mapping for realism
-
-#### Step 2.3: Atmosphere and Effects
-- [x] Create atmospheric scattering shader
-- [x] Implement glowing edge effect
-- [ ] Add star field background
-- [ ] Create aurora borealis shader for poles
-- [ ] Implement cloud shadow casting
-
-### Phase 3: Globe Interactions
-
-#### Step 3.1: Camera Controls
-- [x] Update `src/components/globe/GlobeControls.tsx`
-- [x] Implement OrbitControls with constraints:
-  - [x] Min zoom: 1.5x Earth radius
-  - [x] Max zoom: 4x Earth radius
-  - [x] Rotation damping: 0.05
-  - [x] Pan disabled (rotation only)
-- [x] Add smooth camera transitions
-- [ ] Implement focus-on-location functionality
-- [ ] Create zoom-to-country animations
-
-#### Step 3.2: Mouse Interactions
-- [ ] Implement raycasting for mouse detection
-- [ ] Add country/region highlighting on hover
-- [ ] Create tooltip system showing country names
-- [ ] Implement click-to-focus behaviour
-- [ ] Add right-click context menu for locations
-
-#### Step 3.3: Touch Controls (Mobile)
-- [ ] Implement pinch-to-zoom
-- [ ] Add single-finger rotation
-- [ ] Create momentum scrolling
-- [ ] Implement double-tap to focus
-- [ ] Add gesture hints overlay
-
-### Phase 4: Dynamic Data Visualisation
-
-#### Step 4.1: Location Pin System
-- [x] Update `src/components/globe/LocationPins.tsx`
-- [x] Create 3D pin geometry with animations
-- [x] Implement pin types:
-  - [x] User favourite locations (gold pins)
-  - [x] Recently mentioned places (green pins)
-  - [x] Current query location (pulsing pin)
-  - [x] Historical searches (faded pins)
-- [ ] Add pin clustering for zoom levels
-- [x] Create pin labels with occlusion handling
-
-#### Step 4.2: Connection Visualisation
-- [ ] Implement curved path generation between points
-- [ ] Create animated particle system along paths
-- [ ] Add different path styles:
-  - [ ] Distance calculations (dashed line)
-  - [ ] Travel routes (animated arrows)
-  - [ ] Favourite connections (golden threads)
-- [ ] Implement path glow effects
-- [ ] Add distance labels on paths
-
-#### Step 4.3: Data Overlays
-- [ ] Create heatmap shader for topic density
-- [ ] Implement country colouring by data:
-  - [ ] Population density
-  - [ ] Temperature/weather
-  - [ ] User interest level
-- [ ] Add toggle controls for overlay types
-- [ ] Create smooth transitions between overlays
-
-### Phase 5: Living World Features
-
-#### Step 5.1: Real-time Environmental Effects
-- [ ] Implement day/night terminator line
-- [ ] Calculate sun position based on actual time
-- [ ] Add seasonal tilt adjustments
-- [ ] Create realistic shadow rendering
-- [ ] Implement twilight zone gradient
-
-#### Step 5.2: Animated Weather System
-- [ ] Create particle system for weather:
-  - [ ] Rain particles with splash effects
-  - [ ] Snow accumulation shader
-  - [ ] Storm clouds with lightning
-  - [ ] Sandstorm particle effects
-- [ ] Sync with weather tool data
-- [ ] Add wind direction visualisation
-- [ ] Create weather transition animations
-
-#### Step 5.3: Breathing Globe Animation
-- [ ] Implement subtle scale pulsing (0.98-1.02)
-- [ ] Add rotation wobble for organic feel
-- [ ] Create tectonic plate shift animations
-- [ ] Implement ocean current flow lines
-- [ ] Add atmospheric particle movements
-
-#### Step 5.4: Special Effects Library
-- [ ] Volcano eruption particle system
-- [ ] Earthquake ripple effects
-- [ ] Aurora borealis animated shader
-- [ ] Meteor shower background events
-- [ ] Solar flare impacts on atmosphere
-
-### Phase 6: Terminal Integration
-
-#### Step 6.1: Command-Globe Synchronisation
-- [ ] Create globe command interface:
-  - [ ] `/globe focus [country]` - Center on location
-  - [ ] `/globe zoom [level]` - Adjust zoom
-  - [ ] `/globe overlay [type]` - Change data overlay
-  - [ ] `/globe animate [on/off]` - Toggle animations
-- [ ] Implement command parsing and execution
-- [ ] Add visual feedback for commands
-- [ ] Create help documentation
-
-#### Step 6.2: Real-time Updates
-- [ ] Connect globe to agent responses
-- [ ] Highlight mentioned countries automatically
-- [ ] Show flight paths for distance calculations
-- [ ] Display weather conditions on globe
-- [ ] Animate to locations during conversations
-
-#### Step 6.3: Preference Visualisation
-- [ ] Show user's favourite country with special effects
-- [ ] Create connection lines between preferences
-- [ ] Add preference badges on locations
-- [ ] Implement preference-based colour themes
-- [ ] Create celebration animation for new preferences
-
-### Phase 7: Performance Optimisation
-
-#### Step 7.1: Level of Detail (LOD) System
-- [ ] Implement multiple mesh resolutions
-- [ ] Create distance-based LOD switching
-- [ ] Optimise texture resolutions by zoom level
-- [ ] Reduce particle counts at distance
-- [ ] Implement frustum culling
-
-#### Step 7.2: Rendering Optimisation
-- [ ] Enable instanced rendering for pins
-- [ ] Implement texture atlasing
-- [ ] Create efficient shader programs
-- [ ] Use geometry merging where possible
-- [ ] Implement requestAnimationFrame throttling
-
-#### Step 7.3: Memory Management
-- [ ] Implement texture disposal system
-- [ ] Create geometry pooling
-- [ ] Add resource usage monitoring
-- [ ] Implement dynamic quality adjustment
-- [ ] Create WebGL context loss recovery
-
-### Phase 8: Visual Polish
-
-#### Step 8.1: Post-processing Effects
-- [ ] Add bloom effect for glowing elements
-- [ ] Implement FXAA anti-aliasing
-- [ ] Create depth of field for close zooms
-- [ ] Add chromatic aberration (subtle)
-- [ ] Implement vignette effect
-
-#### Step 8.2: Terminal-Themed Styling
-- [ ] Create retro-futuristic globe shader
-- [ ] Add scan line effect overlay
-- [ ] Implement phosphor glow for pins
-- [ ] Create digital glitch transitions
-- [ ] Add CRT curve distortion (optional)
-
-#### Step 8.3: Colour Theming
-- [ ] Implement configurable colour schemes:
-  - [ ] Classic (green phosphor theme)
-  - [ ] Amber (vintage monitor)
-  - [ ] Blue (modern terminal)
-  - [ ] High contrast mode
-- [ ] Create smooth theme transitions
-- [ ] Sync with terminal colour scheme
-
-### Phase 9: Accessibility and Mobile
-
-#### Step 9.1: Accessibility Features
-- [ ] Add keyboard navigation for globe
-- [ ] Implement screen reader descriptions
-- [ ] Create high contrast overlay mode
-- [ ] Add reduced motion options
-- [ ] Implement focus indicators
-
-#### Step 9.2: Mobile Optimisation
-- [ ] Create mobile-specific layout
-- [ ] Implement progressive quality reduction
-- [ ] Add mobile-optimised controls
-- [ ] Create compact pin representations
-- [ ] Implement battery-saving mode
-
-#### Step 9.3: Progressive Enhancement
-- [ ] Create static fallback image
-- [ ] Implement 2D map alternative
-- [ ] Add feature detection
-- [ ] Create graceful degradation path
-- [ ] Implement offline capabilities
-
-### Phase 10: Testing and Documentation
-
-#### Step 10.1: Performance Testing
-- [ ] Create FPS monitoring system
-- [ ] Implement automated performance tests
-- [ ] Add memory leak detection
-- [ ] Create stress test scenarios
-- [ ] Document performance baselines
-
-#### Step 10.2: Integration Testing
-- [ ] Test all terminal commands
-- [ ] Verify data synchronisation
-- [ ] Test responsive behaviours
-- [ ] Validate touch interactions
-- [ ] Create visual regression tests
-
-#### Step 10.3: Documentation
-- [ ] Create technical documentation
-- [ ] Write user guide for globe features
-- [ ] Document performance best practices
-- [ ] Create troubleshooting guide
-- [ ] Add inline code comments
-
-## Technical Specifications
-
-### Performance Requirements
-- Target FPS: 60 on modern hardware, 30 on mobile
-- Initial load time: < 2 seconds
-- Memory usage: < 200MB
-- GPU usage: < 50% on average hardware
-
-### Browser Support
-- Chrome 90+ (full features)
-- Firefox 88+ (full features)
-- Safari 14+ (with WebGL2 fallback)
-- Edge 90+ (full features)
-- Mobile browsers with WebGL support
-
-### Dependencies
-```json
-{
-  "three": "^0.160.0",
-  "@react-three/fiber": "^8.15.0",
-  "@react-three/drei": "^9.92.0",
-  "@react-three/postprocessing": "^2.15.0",
-  "leva": "^0.9.35" // For debug controls
+// TopoJSON wireframe creation
+function wireframe(multilinestring, radius, material) {
+  const geometry = new THREE.BufferGeometry();
+  const vertices = [];
+  
+  for (const P of multilinestring.coordinates) {
+    for (let i = 1; i < P.length; i++) {
+      const p0 = vertex(P[i-1], radius);
+      const p1 = vertex(P[i], radius);
+      vertices.push(p0.x, p0.y, p0.z, p1.x, p1.y, p1.z);
+    }
+  }
+  
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+  return new THREE.LineSegments(geometry, material);
 }
 ```
 
-### Asset Requirements
-- Earth day texture: 2048x1024px
-- Earth night texture: 2048x1024px
-- Earth normal map: 2048x1024px
-- Cloud texture: 2048x1024px
-- Star field: 4096x2048px
+## Implementation Phases
 
-## Implementation Priority
+### Phase 1: Data Infrastructure
 
-1. **Core Globe** (Phase 1-2): Essential 3D earth rendering
-2. **Basic Interactions** (Phase 3): User can rotate and zoom
-3. **Terminal Integration** (Phase 6): Connect to chat system
-4. **Location Pins** (Phase 4.1): Show mentioned places
-5. **Living Features** (Phase 5): Add life to the globe
-6. **Performance** (Phase 7): Optimise for all devices
-7. **Polish** (Phase 8-9): Enhance visual quality
-8. **Advanced Features**: Additional overlays and effects
+#### Step 1.1: TopoJSON Integration
+- [x] Install topojson-client dependency
+- [ ] Create world-atlas data loader
+- [ ] Implement topojson.mesh for land/country boundaries
+- [ ] Create efficient caching system for TopoJSON data
+- [ ] Add fallback for CDN failures
 
-## Success Metrics
+#### Step 1.2: DEM Elevation System
+- [ ] Load DEM texture from `/public/world/dem.jpg`
+- [ ] Implement height map sampling function
+- [ ] Create elevation-based vertex displacement
+- [ ] Add terrain quality settings (high/medium/low)
+- [ ] Implement adaptive LOD for zoom levels
 
-- Smooth 60 FPS performance on target hardware
-- < 3 second load time for globe
-- Intuitive interaction without instruction
-- Seamless integration with terminal commands
-- Positive user feedback on visual appeal
-- No WebGL crashes or memory leaks
-- Accessible to users with disabilities
-- Mobile-friendly experience
+#### Step 1.3: Bathymetry Texture System
+- [ ] Load bathymetry textures (diffuse + alpha)
+- [ ] Implement texture mapping for sphere geometry
+- [ ] Create realistic ocean appearance
+- [ ] Add texture streaming for performance
+- [ ] Implement fallback colored materials
+
+### Phase 2: Advanced Geometry Creation
+
+#### Step 2.1: Sphere with Elevation
+- [ ] Create base sphere geometry (radius: 200, segments: adaptive)
+- [ ] Apply DEM elevation to all vertices using `avertex()`
+- [ ] Implement vertex normal recalculation
+- [ ] Add smooth/sharp terrain toggle
+- [ ] Create efficient geometry updates
+
+#### Step 2.2: Wireframe Land Boundaries
+- [ ] Fetch `land-50m.json` from world-atlas CDN
+- [ ] Generate mesh using `topojson.mesh(topology, topology.objects.land)`
+- [ ] Create wireframe geometry with neon green materials
+- [ ] Add line width and glow effects
+- [ ] Implement hover/highlight interactions
+
+#### Step 2.3: 3D Tube Country Borders
+- [ ] Load `countries-110m.json` for detailed borders
+- [ ] Create tube geometries along country boundaries
+- [ ] Use `THREE.TubeBufferGeometry` with `CatmullRomCurve3`
+- [ ] Add dynamic tube radius based on zoom level
+- [ ] Implement efficient batching for performance
+
+### Phase 3: Visual Enhancement System
+
+#### Step 3.1: Material System
+- [ ] **Terrain Material**: PBR with bathymetry textures
+- [ ] **Wireframe Material**: Neon green with bloom effect
+- [ ] **Tube Material**: Semi-transparent with glow
+- [ ] **Ocean Material**: Animated with normal maps
+- [ ] **Atmosphere Material**: Outer glow with scattering
+
+#### Step 3.2: Lighting and Effects
+- [ ] Realistic directional lighting (sun position)
+- [ ] Ambient lighting for global illumination
+- [ ] Bloom post-processing for neon glow
+- [ ] Atmospheric scattering shader
+- [ ] Dynamic shadow mapping
+
+#### Step 3.3: Graticule System
+- [ ] Generate latitude/longitude grid using `graticule10()`
+- [ ] Create subtle grid lines (opacity: 0.3)
+- [ ] Add major/minor line differentiation
+- [ ] Implement grid density based on zoom
+- [ ] Allow grid toggle via terminal commands
+
+### Phase 4: Performance Optimization
+
+#### Step 4.1: Level of Detail (LOD)
+- [ ] Multiple TopoJSON resolutions (50m, 110m, coastlines)
+- [ ] Distance-based geometry switching
+- [ ] Adaptive tube segment counts
+- [ ] Dynamic texture resolution
+- [ ] Frustum culling implementation
+
+#### Step 4.2: Efficient Rendering
+- [ ] BufferGeometry for all line work
+- [ ] Instanced rendering for repeated elements
+- [ ] Geometry merging where possible
+- [ ] Texture atlasing for materials
+- [ ] Memory pool management
+
+#### Step 4.3: Streaming and Caching
+- [ ] Progressive TopoJSON loading
+- [ ] Texture streaming with mipmaps
+- [ ] Cached geometry for zoom levels
+- [ ] Background data preloading
+- [ ] Efficient garbage collection
+
+### Phase 5: Interactive Features
+
+#### Step 5.1: Geographic Interaction
+- [ ] Raycasting for country/region detection
+- [ ] Hover effects with country highlighting
+- [ ] Click to focus with smooth camera transitions
+- [ ] Tooltip system with country information
+- [ ] Right-click context menus
+
+#### Step 5.2: Terminal Integration
+- [ ] `/globe mode [realistic|wireframe|hybrid]` - Switch visual modes
+- [ ] `/globe focus [country]` - Focus on specific location
+- [ ] `/globe elevation [on|off]` - Toggle DEM terrain
+- [ ] `/globe quality [high|medium|low]` - Adjust detail level
+- [ ] Real-time response to geography queries
+
+#### Step 5.3: Animation System
+- [ ] Smooth transitions between modes
+- [ ] Breathing animation for wireframe mode
+- [ ] Rotating highlights for active locations
+- [ ] Pulsing effects for mentioned countries
+- [ ] Zoom-based animation speeds
+
+## File Structure
+
+### New Core Files
+```
+src/
+  utils/
+    topojson-loader.ts       # World Atlas data loading
+    dem-elevation.ts         # DEM height mapping
+    bathymetry-textures.ts   # Ocean texture management
+    coordinate-conversion.ts # Observable vertex functions
+  
+  components/globe/
+    AdvancedWorldGlobe.tsx   # Main globe with DEM elevation
+    TopoJSONWireframes.tsx   # Land/country boundary wireframes
+    TubeGeometryBorders.tsx  # 3D country border tubes
+    GraticuleGrid.tsx        # Lat/lng grid system
+    TerrainControls.tsx      # Quality/mode controls
+```
+
+### Data Files
+```
+public/
+  world/
+    dem.jpg                  # Digital Elevation Model
+    bathymetry_diffuse_4k.jpg # Ocean color texture
+    bathymetry_bw_composite_4k.jpg # Ocean alpha map
+```
+
+## Dependencies
+
+### Required Packages
+```json
+{
+  "topojson-client": "^3.1.0",
+  "topojson-server": "^3.0.1",
+  "three": "^0.160.0",
+  "@react-three/fiber": "^8.15.0",
+  "@react-three/drei": "^9.92.0",
+  "@react-three/postprocessing": "^2.15.0"
+}
+```
+
+### CDN Resources
+- `https://cdn.jsdelivr.net/npm/world-atlas@2/land-50m.json`
+- `https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json`
+- `https://cdn.jsdelivr.net/npm/world-atlas@2/coastlines-50m.json`
+
+## Performance Targets
+
+- **Frame Rate**: 60 FPS (high quality), 30 FPS (mobile)
+- **Initial Load**: < 3 seconds (progressive loading)
+- **Memory Usage**: < 500MB (including all textures)
+- **Geometry Count**: Adaptive (50K-500K vertices based on zoom)
+- **Texture Memory**: < 200MB (with streaming)
+
+## Visual Modes
+
+### 1. Realistic Mode
+- DEM-based 3D terrain
+- Bathymetry ocean textures
+- Subtle wireframe overlays
+- Realistic lighting
+
+### 2. Wireframe Mode
+- Neon green continent outlines
+- Glowing country borders
+- Terminal-style aesthetics
+- Minimal textures
+
+### 3. Hybrid Mode
+- 3D terrain with wireframe overlays
+- Selective highlighting
+- Best of both worlds
+- Context-sensitive details
+
+## Success Criteria
+
+1. **Geographic Accuracy**: Precise continent/country boundaries using world-atlas data
+2. **Visual Quality**: Realistic 3D terrain with professional-grade textures
+3. **Performance**: Smooth 60 FPS with adaptive quality controls
+4. **Interactivity**: Responsive country selection and terminal integration
+5. **Flexibility**: Multiple visual modes for different use cases
 
 ## Risk Mitigation
 
-- **WebGL Support**: Provide 2D fallback map
-- **Performance Issues**: Implement quality settings
-- **Large Assets**: Use progressive loading
-- **Memory Leaks**: Regular profiling and testing
-- **Browser Compatibility**: Feature detection and polyfills
+- **Large Data Files**: Progressive loading with LOD system
+- **Memory Usage**: Efficient texture streaming and geometry pooling
+- **Network Latency**: CDN fallbacks and local caching
+- **Browser Performance**: Quality degradation system
+- **Mobile Support**: Simplified geometry and texture resolution
+
+## Implementation Priority
+
+1. **Data Infrastructure** (Phase 1): TopoJSON, DEM, and texture loading
+2. **Core Geometry** (Phase 2): Elevation sphere and wireframe boundaries
+3. **Visual Enhancement** (Phase 3): Materials, lighting, and effects
+4. **Optimization** (Phase 4): LOD system and performance tuning
+5. **Interaction** (Phase 5): Terminal integration and user controls
+
+This advanced specification leverages proven Observable techniques to create a professional-grade 3D globe that matches the sophistication of the terminal interface while maintaining excellent performance.

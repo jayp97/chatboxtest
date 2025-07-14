@@ -1,7 +1,7 @@
 /**
  * GlobeContainer.tsx
- * Container component for the 3D globe with loading states and error boundaries
- * Manages WebGL context and performance optimizations
+ * Container component for the retro neon wireframe globe
+ * Manages WebGL context and performance optimizations for neon aesthetic
  */
 
 "use client";
@@ -12,11 +12,15 @@ import { ErrorBoundary } from "react-error-boundary";
 import { WorldGlobe } from "./WorldGlobe";
 import { GlobeControls } from "./GlobeControls";
 import { LocationPins } from "./LocationPins";
-import { Perf } from "@react-three/drei";
+import { StarField } from "./StarField";
+// import { Perf } from "@react-three/drei"; // Performance monitor (optional)
 
 interface GlobeContainerProps {
   className?: string;
   showPerformanceMonitor?: boolean;
+  showGrid?: boolean;
+  animateWireframes?: boolean;
+  highlightedContinent?: string | null;
 }
 
 // Loading component with terminal style
@@ -34,13 +38,13 @@ function GlobeLoader() {
     <div className="w-full h-full flex items-center justify-center bg-black/40 backdrop-blur-sm">
       <div className="text-center">
         <div className="text-green-400 text-sm font-mono mb-2">
-          LOADING WORLD GLOBE{dots}
+          INITIALIZING NEON GLOBE{dots}
         </div>
         <div className="text-green-400/50 text-xs">
-          INITIALIZING WEBGL CONTEXT
+          LOADING WIREFRAME GEOMETRY
         </div>
         <div className="mt-4 w-48 h-1 bg-green-900/50 rounded overflow-hidden">
-          <div className="h-full bg-green-400 animate-pulse" style={{ width: "70%" }} />
+          <div className="h-full bg-green-400 animate-pulse" style={{ width: "85%" }} />
         </div>
       </div>
     </div>
@@ -53,13 +57,13 @@ function GlobeErrorFallback({ error }: { error: Error }) {
     <div className="w-full h-full flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div className="text-center max-w-sm">
         <div className="text-red-400 text-sm font-mono mb-2">
-          GLOBE MODULE ERROR
+          NEON GLOBE ERROR
         </div>
         <div className="text-red-400/70 text-xs mb-4">
-          {error.message || "WebGL initialization failed"}
+          {error.message || "WebGL wireframe rendering failed"}
         </div>
         <div className="text-green-400/50 text-xs">
-          The 3D globe requires WebGL support.
+          The neon wireframe globe requires WebGL support.
           <br />
           Please try a different browser or update your graphics drivers.
         </div>
@@ -68,7 +72,13 @@ function GlobeErrorFallback({ error }: { error: Error }) {
   );
 }
 
-export function GlobeContainer({ className = "", showPerformanceMonitor = false }: GlobeContainerProps) {
+export function GlobeContainer({ 
+  className = "", 
+  showPerformanceMonitor: _showPerformanceMonitor = false,
+  showGrid = true,
+  animateWireframes = true,
+  highlightedContinent = null
+}: GlobeContainerProps) {
   const [webGLSupported, setWebGLSupported] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -82,8 +92,8 @@ export function GlobeContainer({ className = "", showPerformanceMonitor = false 
       setWebGLSupported(false);
     }
     
-    // Simulate loading time
-    const timer = setTimeout(() => setIsLoading(false), 1500);
+    // Reduced loading time for wireframe system (no textures to load)
+    const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
   }, []);
   
@@ -105,8 +115,8 @@ export function GlobeContainer({ className = "", showPerformanceMonitor = false 
         <Suspense fallback={<GlobeLoader />}>
           <Canvas
             camera={{
-              position: [0, 0, 4.5],
-              fov: 45,
+              position: [0, 0, 12],
+              fov: 50,
               near: 0.1,
               far: 1000,
             }}
@@ -115,12 +125,16 @@ export function GlobeContainer({ className = "", showPerformanceMonitor = false 
               alpha: true,
               powerPreference: "high-performance",
               preserveDrawingBuffer: true,
+              logarithmicDepthBuffer: true, // Better for wireframe rendering
             }}
             shadows
             dpr={[1, 2]}
           >
             {/* Performance monitor (debug mode) */}
-            {showPerformanceMonitor && <Perf position="top-left" />}
+            {/* {showPerformanceMonitor && <Perf position="top-left" />} */}
+            
+            {/* Star field background */}
+            <StarField />
             
             {/* Ambient lighting */}
             <ambientLight intensity={0.3} />
@@ -133,8 +147,15 @@ export function GlobeContainer({ className = "", showPerformanceMonitor = false 
               shadow-mapSize={[2048, 2048]}
             />
             
-            {/* Earth globe */}
-            <WorldGlobe />
+            {/* Advanced globe with TopoJSON and DEM */}
+            <WorldGlobe 
+              showGrid={showGrid}
+              animateWireframes={animateWireframes}
+              highlightedContinent={highlightedContinent}
+              initialMode="wireframe"
+              initialQuality="medium"
+              showControls={false}
+            />
             
             {/* Camera controls */}
             <GlobeControls />
