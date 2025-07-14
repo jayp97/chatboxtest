@@ -1,0 +1,149 @@
+/**
+ * GlobeContainer.tsx
+ * Container component for the 3D globe with loading states and error boundaries
+ * Manages WebGL context and performance optimizations
+ */
+
+"use client";
+
+import { Suspense, useState, useEffect } from "react";
+import { Canvas } from "@react-three/fiber";
+import { ErrorBoundary } from "react-error-boundary";
+import { WorldGlobe } from "./WorldGlobe";
+import { GlobeControls } from "./GlobeControls";
+import { LocationPins } from "./LocationPins";
+import { Perf } from "@react-three/drei";
+
+interface GlobeContainerProps {
+  className?: string;
+  showPerformanceMonitor?: boolean;
+}
+
+// Loading component with terminal style
+function GlobeLoader() {
+  const [dots, setDots] = useState("");
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots(prev => prev.length >= 3 ? "" : prev + ".");
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+  
+  return (
+    <div className="w-full h-full flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="text-center">
+        <div className="text-green-400 text-sm font-mono mb-2">
+          LOADING WORLD GLOBE{dots}
+        </div>
+        <div className="text-green-400/50 text-xs">
+          INITIALIZING WEBGL CONTEXT
+        </div>
+        <div className="mt-4 w-48 h-1 bg-green-900/50 rounded overflow-hidden">
+          <div className="h-full bg-green-400 animate-pulse" style={{ width: "70%" }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Error fallback component
+function GlobeErrorFallback({ error }: { error: Error }) {
+  return (
+    <div className="w-full h-full flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div className="text-center max-w-sm">
+        <div className="text-red-400 text-sm font-mono mb-2">
+          GLOBE MODULE ERROR
+        </div>
+        <div className="text-red-400/70 text-xs mb-4">
+          {error.message || "WebGL initialization failed"}
+        </div>
+        <div className="text-green-400/50 text-xs">
+          The 3D globe requires WebGL support.
+          <br />
+          Please try a different browser or update your graphics drivers.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function GlobeContainer({ className = "", showPerformanceMonitor = false }: GlobeContainerProps) {
+  const [webGLSupported, setWebGLSupported] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Check WebGL support
+  useEffect(() => {
+    try {
+      const canvas = document.createElement("canvas");
+      const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+      setWebGLSupported(!!gl);
+    } catch {
+      setWebGLSupported(false);
+    }
+    
+    // Simulate loading time
+    const timer = setTimeout(() => setIsLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
+  
+  if (!webGLSupported) {
+    return (
+      <GlobeErrorFallback 
+        error={new Error("WebGL is not supported in your browser")} 
+      />
+    );
+  }
+  
+  if (isLoading) {
+    return <GlobeLoader />;
+  }
+  
+  return (
+    <div className={`w-full h-full ${className}`}>
+      <ErrorBoundary FallbackComponent={GlobeErrorFallback}>
+        <Suspense fallback={<GlobeLoader />}>
+          <Canvas
+            camera={{
+              position: [0, 0, 4.5],
+              fov: 45,
+              near: 0.1,
+              far: 1000,
+            }}
+            gl={{
+              antialias: true,
+              alpha: true,
+              powerPreference: "high-performance",
+              preserveDrawingBuffer: true,
+            }}
+            shadows
+            dpr={[1, 2]}
+          >
+            {/* Performance monitor (debug mode) */}
+            {showPerformanceMonitor && <Perf position="top-left" />}
+            
+            {/* Ambient lighting */}
+            <ambientLight intensity={0.3} />
+            
+            {/* Main directional light (sun) */}
+            <directionalLight
+              position={[5, 3, 5]}
+              intensity={1.5}
+              castShadow
+              shadow-mapSize={[2048, 2048]}
+            />
+            
+            {/* Earth globe */}
+            <WorldGlobe />
+            
+            {/* Camera controls */}
+            <GlobeControls />
+            
+            {/* Location pins */}
+            <LocationPins locations={[]} />
+          </Canvas>
+        </Suspense>
+      </ErrorBoundary>
+    </div>
+  );
+}

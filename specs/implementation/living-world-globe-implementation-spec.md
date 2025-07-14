@@ -20,36 +20,36 @@ This specification details the implementation of an interactive 3D globe that wi
 ### Phase 1: Foundation and Layout Setup
 
 #### Step 1.1: Layout Restructuring
-- [ ] Update `src/app/page.tsx` to create split-screen layout
-- [ ] Create flex container with proper proportions (60/40 split)
-- [ ] Implement responsive breakpoints for mobile devices
+- [x] Update `src/app/page.tsx` to create split-screen layout
+- [x] Create flex container with proper proportions (60/40 split)
+- [x] Implement responsive breakpoints for mobile devices
 - [ ] Add resize handler for dynamic adjustments
-- [ ] Create backdrop gradient for visual separation
+- [x] Create backdrop gradient for visual separation
 
 #### Step 1.2: Three.js Integration
-- [ ] Install required dependencies:
+- [x] Install required dependencies:
   ```bash
   pnpm install three @react-three/fiber @react-three/drei @react-three/postprocessing
   pnpm install -D @types/three
   ```
-- [ ] Set up Three.js canvas container
-- [ ] Configure WebGL renderer settings
-- [ ] Implement performance monitoring
-- [ ] Add fallback for WebGL unsupported browsers
+- [x] Set up Three.js canvas container
+- [x] Configure WebGL renderer settings
+- [x] Implement performance monitoring
+- [x] Add fallback for WebGL unsupported browsers
 
 #### Step 1.3: Globe Container Component
-- [ ] Create `src/components/globe/GlobeContainer.tsx`
-- [ ] Implement proper sizing and aspect ratio
-- [ ] Add loading state with terminal-style loader
-- [ ] Set up error boundaries for 3D rendering
-- [ ] Create performance optimisation controls
+- [x] Create `src/components/globe/GlobeContainer.tsx`
+- [x] Implement proper sizing and aspect ratio
+- [x] Add loading state with terminal-style loader
+- [x] Set up error boundaries for 3D rendering
+- [x] Create performance optimisation controls
 
 ### Phase 2: 3D Globe Core Implementation
 
 #### Step 2.1: Earth Mesh Creation
-- [ ] Update `src/components/globe/WorldGlobe.tsx` with Three.js implementation
-- [ ] Create Earth sphere geometry (segments: 64x64)
-- [ ] Implement custom shader for atmosphere effect
+- [x] Update `src/components/globe/WorldGlobe.tsx` with Three.js implementation
+- [x] Create Earth sphere geometry (segments: 64x64)
+- [x] Implement custom shader for atmosphere effect
 - [ ] Add earth texture mapping:
   - [ ] Day texture (8K downsampled to 2K for performance)
   - [ ] Night texture with city lights
@@ -58,15 +58,15 @@ This specification details the implementation of an interactive 3D globe that wi
   - [ ] Cloud layer with transparency
 
 #### Step 2.2: Lighting System
-- [ ] Add directional light for sun simulation
-- [ ] Implement ambient light for base illumination
+- [x] Add directional light for sun simulation
+- [x] Implement ambient light for base illumination
 - [ ] Create dynamic light position based on real time
 - [ ] Add rim lighting for atmospheric glow
-- [ ] Implement shadow mapping for realism
+- [x] Implement shadow mapping for realism
 
 #### Step 2.3: Atmosphere and Effects
-- [ ] Create atmospheric scattering shader
-- [ ] Implement glowing edge effect
+- [x] Create atmospheric scattering shader
+- [x] Implement glowing edge effect
 - [ ] Add star field background
 - [ ] Create aurora borealis shader for poles
 - [ ] Implement cloud shadow casting
@@ -74,13 +74,13 @@ This specification details the implementation of an interactive 3D globe that wi
 ### Phase 3: Globe Interactions
 
 #### Step 3.1: Camera Controls
-- [ ] Update `src/components/globe/GlobeControls.tsx`
-- [ ] Implement OrbitControls with constraints:
-  - [ ] Min zoom: 1.5x Earth radius
-  - [ ] Max zoom: 4x Earth radius
-  - [ ] Rotation damping: 0.05
-  - [ ] Pan disabled (rotation only)
-- [ ] Add smooth camera transitions
+- [x] Update `src/components/globe/GlobeControls.tsx`
+- [x] Implement OrbitControls with constraints:
+  - [x] Min zoom: 1.5x Earth radius
+  - [x] Max zoom: 4x Earth radius
+  - [x] Rotation damping: 0.05
+  - [x] Pan disabled (rotation only)
+- [x] Add smooth camera transitions
 - [ ] Implement focus-on-location functionality
 - [ ] Create zoom-to-country animations
 
@@ -101,15 +101,15 @@ This specification details the implementation of an interactive 3D globe that wi
 ### Phase 4: Dynamic Data Visualisation
 
 #### Step 4.1: Location Pin System
-- [ ] Update `src/components/globe/LocationPins.tsx`
-- [ ] Create 3D pin geometry with animations
-- [ ] Implement pin types:
-  - [ ] User favourite locations (gold pins)
-  - [ ] Recently mentioned places (green pins)
-  - [ ] Current query location (pulsing pin)
-  - [ ] Historical searches (faded pins)
+- [x] Update `src/components/globe/LocationPins.tsx`
+- [x] Create 3D pin geometry with animations
+- [x] Implement pin types:
+  - [x] User favourite locations (gold pins)
+  - [x] Recently mentioned places (green pins)
+  - [x] Current query location (pulsing pin)
+  - [x] Historical searches (faded pins)
 - [ ] Add pin clustering for zoom levels
-- [ ] Create pin labels with occlusion handling
+- [x] Create pin labels with occlusion handling
 
 #### Step 4.2: Connection Visualisation
 - [ ] Implement curved path generation between points
