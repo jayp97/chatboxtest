@@ -7,8 +7,17 @@
 "use client";
 
 import { useState } from "react";
-import { AdvancedWorldGlobe, GlobeControls as GlobeModeControls, type GlobeMode, type GlobeQuality } from "./AdvancedWorldGlobe";
-import { ObservableGlobe, ObservableGlobeControls, type ObservableGlobeMode } from "./ObservableGlobe";
+import {
+  AdvancedWorldGlobe,
+  GlobeControls as GlobeModeControls,
+  type GlobeMode,
+  type GlobeQuality,
+} from "./AdvancedWorldGlobe";
+import {
+  ObservableGlobe,
+  ObservableGlobeControls,
+  type ObservableGlobeMode,
+} from "./ObservableGlobe";
 
 interface WorldGlobeProps {
   showGrid?: boolean;
@@ -20,21 +29,20 @@ interface WorldGlobeProps {
   useObservable?: boolean; // Use Observable-style globe with textures
 }
 
-export function WorldGlobe({ 
-  showGrid = true, 
-  animateWireframes = true, 
+export function WorldGlobe({
+  showGrid = true,
+  animateWireframes = true,
   highlightedContinent = null,
-  initialMode = 'wireframe',
-  initialQuality = 'medium',
+  initialMode = "wireframe",
+  initialQuality = "medium",
   showControls = false,
-  useObservable = true // Default to Observable globe with textures
+  useObservable = true, // Default to Observable globe with textures
 }: WorldGlobeProps = {}) {
   const [mode, setMode] = useState<GlobeMode>(initialMode);
   const [quality, setQuality] = useState<GlobeQuality>(initialQuality);
-  const [observableMode, setObservableMode] = useState<ObservableGlobeMode>('realistic');
-  
-  
-  
+  const [observableMode, setObservableMode] =
+    useState<ObservableGlobeMode>("realistic");
+
   return (
     <>
       {useObservable ? (
@@ -42,12 +50,12 @@ export function WorldGlobe({
         <>
           <ObservableGlobe
             mode={observableMode}
-            radius={5} // Proper size for visibility
+            radius={3} // Smaller default size for better UX
             animated={animateWireframes}
             threedee={false} // Always disable DEM elevation for smooth sphere
             debugMode={false} // Set to true to test basic sphere rendering
           />
-          
+
           {/* Observable globe controls (if enabled) */}
           {showControls && (
             <ObservableGlobeControls
@@ -62,13 +70,13 @@ export function WorldGlobe({
           <AdvancedWorldGlobe
             mode={mode}
             quality={quality}
-            radius={5} // Larger sphere for better visibility
-            enableElevation={mode !== 'wireframe'}
+            radius={4} // Smaller default size for better UX
+            enableElevation={mode !== "wireframe"}
             showGrid={showGrid}
             animated={animateWireframes}
             highlightedCountry={highlightedContinent}
           />
-          
+
           {/* Advanced globe controls (if enabled) */}
           {showControls && (
             <GlobeModeControls

@@ -12,7 +12,6 @@ import * as THREE from "three";
 import { vertex, avertex } from "@/utils/coordinate-conversion";
 import { loadDEMData, type DEMData } from "@/utils/dem-elevation";
 import { loadBathymetryTextures, type BathymetryTextures } from "@/utils/bathymetry-textures";
-import { AccurateContinentWireframes } from "./AccurateContinentWireframes";
 
 export type ObservableGlobeMode = 'realistic' | 'wireframe' | 'hybrid';
 
@@ -258,27 +257,18 @@ export function ObservableGlobe({
   }
 
   return (
-    <group name="observable-world-globe" position={[0, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
+    <group name="observable-world-globe" position={[0, 0, 0]} rotation={[0, 0, 0]}>
       {/* Main Observable sphere with bathymetry textures */}
       <mesh
         ref={sphereRef}
         geometry={sphereGeometry}
         material={sphereMaterial}
         position={[0, 0, 0]}
-        rotation={[0, 0, 0]} // Proper geographic orientation
+        rotation={[0, Math.PI, 0]} // Rotate 180° to put Europe/Northern Hemisphere at top
         castShadow
         receiveShadow
       />
       
-      {/* Continent outlines */}
-      <AccurateContinentWireframes
-        visible={true}
-        radius={radius + 0.01} // Slightly above surface
-        color={mode === 'wireframe' ? 0x00ff00 : 0x88cc44}
-        opacity={mode === 'wireframe' ? 0.8 : 0.6}
-        lineWidth={1}
-        animated={animated}
-      />
       
       {/* Atmosphere glow - only show in realistic mode */}
       {mode !== 'wireframe' && (
