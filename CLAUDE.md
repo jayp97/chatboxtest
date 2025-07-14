@@ -10,7 +10,7 @@ This is a Next.js 15 application built for a coding assessment to create an enha
 
 - `npm run dev` - Start development server
 - `npm run build` - Build production version
-- `npm start` - Start production server  
+- `npm start` - Start production server
 - `npm run lint` - Run ESLint checks
 
 ## Architecture
@@ -18,6 +18,7 @@ This is a Next.js 15 application built for a coding assessment to create an enha
 The project follows Next.js App Router structure:
 
 - **`src/app/`** - Main application code
+
   - `page.tsx` - Chatbox UI component (fixed bottom-right)
   - `api/stream/route.ts` - Edge runtime streaming endpoint (currently echoes messages)
   - `layout.tsx` - Root layout with global styles
@@ -37,6 +38,7 @@ The chatbot needs to:
 ## Environment Variables
 
 Copy `.env.example` to `.env` and add OpenAI API keys:
+
 - `OPENAI_API_KEY` - Required for GPT-4.1 access
 
 ## Technical Constraints
@@ -46,3 +48,15 @@ Copy `.env.example` to `.env` and add OpenAI API keys:
 - Use OpenAI npm packages for API integration
 - No database required (mock data is acceptable)
 - Maintain Edge runtime for the streaming endpoint
+
+## Language
+
+Use British English throughout and ensure that all code is clearly and professionally commented.
+
+## Audio alert when tasks are complete
+
+run `afplay /System/Library/Sounds/Glass.aiff` (or any other system sound) at the end of the tasks, or when my input is needed from me to proceed with a task.
+
+## Dev logs
+
+At the end of every session create a new file in the `docs/dev-logs` directory with the date and a detailed summary of the session, including when sucessfully git commited and pushed.

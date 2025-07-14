@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mastra": {
+      "command": "npx",
+      "args": ["-y", "@mastra/mcp-docs-server"]
+    },
+    "shadcn-ui-server": {
+      "command": "npx",
+      "args": ["-y", "shadcn-ui-mcp-server"]
+    }
+  }
+}
