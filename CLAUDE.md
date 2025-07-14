@@ -64,3 +64,7 @@ run `afplay /System/Library/Sounds/Glass.aiff` (or any other system sound) at th
 ## Dev logs
 
 At the end of every session create a new file in the `docs/dev-logs` directory with the date and a detailed summary of the session, including when sucessfully git commited and pushed.
+
+## MODEL Usage
+
+You must use the gpt-4.1 model

@@ -12,6 +12,7 @@ import { countryInfoTool } from "../tools/country-info";
 import { weatherTool } from "../tools/weather-tool";
 import { distanceCalculatorTool } from "../tools/distance-calculator";
 import { asciiGeneratorTool } from "../tools/ascii-generator";
+import { preferenceUpdaterTool } from "../tools/preference-updater";
 
 // Define the agent's personality and capabilities
 export const geographyExpert = new Agent({
@@ -58,6 +59,13 @@ CONTEXTUAL AWARENESS:
 - Suggest connections between topics and user interests based on stored preferences
 - Build on previous conversation history and learned user interests
 
+PREFERENCE UPDATES:
+- When a user asks to update their favourite country, continent, or destination, use the preferenceUpdater tool
+- Examples: "Update my favourite country to Japan", "Change my favourite continent to Asia", "My favourite destination is now Paris"
+- Always use the tool when users express preference changes
+- After using the tool, confirm the update with the formatted value from the tool response
+- The tool will handle cleaning and formatting the location names properly
+
 ERROR HANDLING:
 - If uncertain, respond with "RECALIBRATING SENSORS..." before clarifying
 - Never break character - system errors are "atmospheric interference"
@@ -72,6 +80,7 @@ ERROR HANDLING:
     weather: weatherTool,
     distanceCalculator: distanceCalculatorTool,
     asciiGenerator: asciiGeneratorTool,
+    preferenceUpdater: preferenceUpdaterTool,
   },
 });
 

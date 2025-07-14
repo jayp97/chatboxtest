@@ -46,7 +46,7 @@ export function OnboardingFlow({
     if (!input.trim()) return;
     
     const currentQuestion = questions[step - 1];
-    const newData = { ...data, [currentQuestion.key]: input.trim() };
+    const newData = { ...data, [currentQuestion.key]: input.trim().toLowerCase() };
     setData(newData);
     setInput("");
     setIsTyping(true);

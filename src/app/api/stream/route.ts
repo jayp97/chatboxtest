@@ -66,20 +66,17 @@ export async function POST(req: Request) {
           Please update your working memory with these preferences and reference them naturally in responses.`
         : "";
 
+      console.log("Executing agent with message:", message);
+      console.log("User ID:", actualUserId);
+      console.log("Thread ID:", actualThreadId);
+
       // Execute the agent with streaming
       const response = await geographyExpert.stream(
         [
           { role: "user", content: message }
         ],
         {
-          // Add context if we have preferences
-          ...(contextMessage && { 
-            context: [{ 
-              role: "system" as const, 
-              content: contextMessage 
-            }] 
-          }),
-          // Memory configuration
+          // Memory configuration - this is the key!
           memory: {
             thread: actualThreadId,
             resource: actualUserId,
@@ -103,6 +100,15 @@ export async function POST(req: Request) {
               }
             }
             
+            // If a preference update was detected, send a special marker
+            if (preferenceUpdate) {
+              console.log("Sending preference update marker to frontend");
+              const updateMarker = `\n__PREFERENCE_UPDATE__${JSON.stringify(preferenceUpdate)}__END_UPDATE__\n`;
+              controller.enqueue(encoder.encode(updateMarker));
+            } else {
+              console.log("No preference update detected at stream end");
+            }
+            
             // Close the stream when done
             controller.close();
           } catch {
@@ -122,9 +128,10 @@ export async function POST(req: Request) {
           "Connection": "keep-alive",
         },
       });
-    } catch {
+    } catch (error) {
+      console.error("Agent execution error:", error);
       return new Response(
-        JSON.stringify({ error: "SYSTEM ERROR: Agent malfunction" }),
+        JSON.stringify({ error: "SYSTEM ERROR: Agent malfunction", details: error instanceof Error ? error.message : "Unknown error" }),
         {
           status: 500,
           headers: { "Content-Type": "application/json" },

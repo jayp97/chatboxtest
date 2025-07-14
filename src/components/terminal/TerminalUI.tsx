@@ -10,19 +10,16 @@ import { useState, useEffect, useRef } from "react";
 import { CRTEffects } from "./CRTEffects";
 import { BootSequence } from "./BootSequence";
 import { CommandLine } from "./CommandLine";
+import { parseCommand } from "@/utils/terminal-commands";
 
 interface TerminalUIProps {
   onCommand?: (command: string) => void;
   className?: string;
-  userPreferences?: {
-    favoriteCountry: string;
-    favoriteContinent: string;
-    favoriteDestination: string;
-  };
+  userId: string;
   onResetPreferences?: () => void;
 }
 
-export function TerminalUI({ onCommand, className = "", userPreferences }: TerminalUIProps) {
+export function TerminalUI({ onCommand, className = "", userId, onResetPreferences }: TerminalUIProps) {
   const [isBooted, setIsBooted] = useState(false);
   const [terminalHistory, setTerminalHistory] = useState<string[]>([]);
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -41,40 +38,61 @@ export function TerminalUI({ onCommand, className = "", userPreferences }: Termi
       return newHistory;
     });
     
-    // Pass command to parent handler
-    onCommand?.(command);
+    // Check for terminal commands (without preferences context)
+    const commandResult = parseCommand(command);
     
-    // If no parent handler, process the command directly
-    if (!onCommand) {
+    if (commandResult) {
+      // Handle special command results
+      if (commandResult === "CLEAR_TERMINAL") {
+        setTerminalHistory([]);
+        return;
+      }
+      
+      if (commandResult === "RESET_PREFERENCES") {
+        onResetPreferences?.();
+        addResponse("SYSTEM: Preferences reset. Returning to onboarding...");
+        return;
+      }
+      
+      if (commandResult === "SHOW_PREFERENCES") {
+        // Query the agent for current preferences
+        await processCommand("What are my current geographic preferences? Please list my favourite country, continent, and destination.", true);
+        return;
+      }
+      
+      if (commandResult.startsWith("UPDATE_PREFERENCE:")) {
+        const [, field, ...valueParts] = commandResult.split(":");
+        const value = valueParts.join(":");
+        
+        // Send update request to agent
+        await processCommand(`Update my favourite ${field} to ${value}`);
+        return;
+      }
+      
+      // Display command result
+      addResponse(commandResult);
+      return;
+    }
+    
+    // Pass command to parent handler or process via API
+    if (onCommand) {
+      onCommand(command);
+    } else {
       await processCommand(command);
     }
   };
 
   // Process command via streaming API
-  const processCommand = async (command: string) => {
+  const processCommand = async (command: string, isPreferencesQuery = false) => {
     try {
-      // Convert userPreferences to the API format
-      const apiPreferences = userPreferences ? {
-        favouriteCountry: userPreferences.favoriteCountry,
-        favouriteContinent: userPreferences.favoriteContinent,
-        favouriteDestination: userPreferences.favoriteDestination
-      } : undefined;
-
-      // Get or create a persistent user ID for memory
-      let userId = localStorage.getItem('geosys-user-id');
-      if (!userId) {
-        userId = `geosys-user-${Date.now()}`;
-        localStorage.setItem('geosys-user-id', userId);
-      }
 
       const response = await fetch('/api/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           message: command,
-          userPreferences: apiPreferences,
           userId: userId,
-          threadId: 'geosys-terminal-session'
+          threadId: 'geosys-terminal-thread'
         })
       });
 
@@ -105,6 +123,13 @@ export function TerminalUI({ onCommand, className = "", userPreferences }: Termi
           newHistory[newHistory.length - 1] = aiResponse;
           return newHistory;
         });
+      }
+      
+      // If this was a preferences query, parse the response to show formatted preferences
+      if (isPreferencesQuery) {
+        // The agent's response will contain the preferences
+        // We'll display the raw response from the agent
+        console.log("Preferences query response:", aiResponse);
       }
       
     } catch (error) {

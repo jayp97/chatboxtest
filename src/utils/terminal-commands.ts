@@ -37,11 +37,57 @@ Geographic Intelligence System
 An extraordinary geography experience`;
     },
   },
+  status: {
+    name: "status",
+    description: "Show system status",
+    execute: () => {
+      const timestamp = new Date().toISOString().split("T")[1].split(".")[0];
+      
+      return `GEOSYS STATUS REPORT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+▸ System Version:        v4.2.1
+▸ Status:                ONLINE
+▸ Time:                  ${timestamp}
+▸ Memory:                MASTRA AI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Type 'preferences' to view user preferences`;
+    },
+  },
   "sudo explore world": {
     name: "sudo explore world",
     description: "Unlock hidden features",
     execute: () => {
       return "ACCESS GRANTED: Advanced features unlocked!";
+    },
+  },
+  preferences: {
+    name: "preferences",
+    description: "View or change your geographic preferences",
+    aliases: ["prefs", "settings"],
+    execute: (args) => {
+      // If no arguments, show current preferences from agent
+      if (args.length === 0) {
+        return "SHOW_PREFERENCES";
+      }
+      
+      // Handle subcommands
+      const subcommand = args[0];
+      
+      if (subcommand === "reset") {
+        return "RESET_PREFERENCES";
+      }
+      
+      if (["country", "continent", "destination"].includes(subcommand)) {
+        if (args.length < 2) {
+          return `ERROR: Please provide a new value. Example: preferences ${subcommand} [value]`;
+        }
+        
+        const newValue = args.slice(1).join(" ");
+        return `UPDATE_PREFERENCE:${subcommand}:${newValue}`;
+      }
+      
+      return "ERROR: Unknown subcommand. Type 'preferences' to see available options.";
     },
   },
 };

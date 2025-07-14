@@ -5,31 +5,63 @@ import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow'
 
 export default function Home() {
   const [isOnboarding, setIsOnboarding] = useState(true)
+  const [userId, setUserId] = useState<string>('')
   const [userPreferences, setUserPreferences] = useState({
     favoriteCountry: '',
     favoriteContinent: '',
     favoriteDestination: ''
   })
 
-
-  // Check if user has completed onboarding
+  // Get or create a persistent user ID
   useEffect(() => {
-    const savedPreferences = localStorage.getItem('geosys-preferences')
-    if (savedPreferences) {
-      const preferences = JSON.parse(savedPreferences)
-      setUserPreferences(preferences)
-      setIsOnboarding(false)
+    let storedUserId = localStorage.getItem('geosys-user-id')
+    if (!storedUserId) {
+      storedUserId = `geosys-user-${Date.now()}`
+      localStorage.setItem('geosys-user-id', storedUserId)
     }
+    setUserId(storedUserId)
+    
+    // For now, always show onboarding
+    // In a production app, you'd check if this user has preferences in Mastra
+    setIsOnboarding(true)
   }, [])
 
-  const handleOnboardingComplete = (preferences: typeof userPreferences) => {
+  const handleOnboardingComplete = async (preferences: typeof userPreferences) => {
     setUserPreferences(preferences)
-    localStorage.setItem('geosys-preferences', JSON.stringify(preferences))
     setIsOnboarding(false)
+    
+    // Send preferences to the agent to store in working memory
+    try {
+      const response = await fetch('/api/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `My favourite country is ${preferences.favoriteCountry}, my favourite continent is ${preferences.favoriteContinent}, and my favourite destination is ${preferences.favoriteDestination}. Please remember these preferences.`,
+          userId: userId,
+          threadId: 'geosys-terminal-thread',
+          userPreferences: {
+            favouriteCountry: preferences.favoriteCountry,
+            favouriteContinent: preferences.favoriteContinent,
+            favouriteDestination: preferences.favoriteDestination
+          }
+        })
+      })
+      
+      if (response.body) {
+        const reader = response.body.getReader()
+        // Consume the stream but don't display it
+        while (true) {
+          const { done } = await reader.read()
+          if (done) break
+        }
+      }
+    } catch (error) {
+      console.error('Error storing preferences:', error)
+    }
   }
 
   const handleResetPreferences = () => {
-    localStorage.removeItem('geosys-preferences')
+    // Just reset to onboarding - Mastra memory will handle the rest
     setIsOnboarding(true)
     setUserPreferences({
       favoriteCountry: '',
@@ -46,7 +78,7 @@ export default function Home() {
         />
       ) : (
         <TerminalUI
-          userPreferences={userPreferences}
+          userId={userId}
           onResetPreferences={handleResetPreferences}
         />
       )}

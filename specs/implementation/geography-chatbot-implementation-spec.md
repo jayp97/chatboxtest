@@ -90,6 +90,7 @@ src/
 - [x] Configure LibSQLStore for local database storage
 - [x] Set up memory persistence configuration
 - [x] Initialise agent registry
+- [x] Create memory-config.ts with working memory system
 
 #### Step 2.2: Geography Expert Agent Creation
 - [x] Implement `geography-expert.ts` with personality traits
@@ -100,56 +101,57 @@ src/
 
 #### Step 2.3: Tool Development
 1. **Country Information Tool**
-   - [ ] REST Countries API integration
-   - [ ] Capital, population, languages data
-   - [ ] Fun facts generation
-   - [ ] Error handling for unknown countries
+   - [x] REST Countries API integration
+   - [x] Capital, population, languages data
+   - [x] Fun facts generation
+   - [x] Error handling for unknown countries
 
 2. **Weather Tool**
-   - [ ] Open-Meteo API integration (no key required)
-   - Current conditions fetching
-   - Weather code to description mapping
-   - Location geocoding
+   - [x] Open-Meteo API integration (no key required)
+   - [x] Current conditions fetching
+   - [x] Weather code to description mapping
+   - [x] Location geocoding
 
 3. **Distance Calculator Tool**
-   - Haversine formula implementation
-   - Support for city-to-city calculations
-   - Favourite location shortcuts
+   - [x] Haversine formula implementation
+   - [x] Support for city-to-city calculations
+   - [x] Favourite location shortcuts
 
 4. **ASCII Generator Tool**
-   - Dynamic ASCII art generation
-   - Country-specific patterns
-   - Weather condition representations
+   - [x] Dynamic ASCII art generation
+   - [x] Country-specific patterns
+   - [x] Weather condition representations
 
 #### Step 2.4: Streaming Endpoint Enhancement
-- Update `/api/stream/route.ts` for Mastra integration
-- Implement proper Edge runtime configuration
-- Add memory context handling
-- Configure thread and user ID management
-- Set up error boundaries and fallbacks
+- [x] Update `/api/stream/route.ts` for Mastra integration
+- [x] Implement proper Node.js runtime configuration
+- [x] Add memory context handling
+- [x] Configure thread and user ID management
+- [x] Set up error boundaries and fallbacks
+- [x] User preferences integration with working memory
 
 ### Phase 3: Terminal UI Implementation
 
 #### Step 3.1: Base Terminal Structure
-- Create `TerminalUI.tsx` main container
-- Implement black background with phosphor green (#00ff00) text
-- Set up fixed-width terminal dimensions
-- Add terminal frame with title bar "GEOSYS v4.2.1"
+- [x] Create `TerminalUI.tsx` main container
+- [x] Implement black background with phosphor green (#00ff00) text
+- [x] Set up fixed-width terminal dimensions
+- [x] Add terminal frame with title bar "GEOSYS v4.2.1"
 
 #### Step 3.2: CRT Effects Layer
-- Implement `CRTEffects.tsx` with CSS filters
-- Add scanline overlay animation
-- Create screen flicker effect (subtle, random intervals)
-- Implement chromatic aberration on edges
-- Add subtle screen curvature distortion
-- Create phosphor glow effect for text
+- [x] Implement `CRTEffects.tsx` with CSS filters
+- [x] Add scanline overlay animation
+- [x] Create screen flicker effect (subtle, random intervals)
+- [x] Implement chromatic aberration on edges
+- [x] Add subtle screen curvature distortion
+- [x] Create phosphor glow effect for text
 
 #### Step 3.3: Boot Sequence Animation
-- Create `BootSequence.tsx` component
-- Implement typewriter effect for boot messages
-- Add progress bar animations
-- Include authentic system sounds
-- Sequence steps:
+- [x] Create `BootSequence.tsx` component
+- [x] Implement typewriter effect for boot messages
+- [x] Add progress bar animations
+- [x] Include authentic system sounds
+- [x] Sequence steps:
   ```
   GEOSYS v4.2.1 INITIALISING...
   CHECKING SYSTEM INTEGRITY... OK
@@ -158,27 +160,35 @@ src/
   CONNECTION ESTABLISHED
   READY. TYPE 'HELLO' TO BEGIN
   ```
+- [x] Fixed rendering issues with undefined text and duplication
 
 #### Step 3.4: Command Line Interface
-- Implement `CommandLine.tsx` with prompt styling
-- Add blinking cursor animation
-- Create command history (up/down arrows)
-- Implement auto-complete for common commands
-- Command syntax: `> query: [user input]`
-- Add typing sound effects
+- [x] Implement `CommandLine.tsx` with prompt styling
+- [x] Add blinking cursor animation
+- [x] Create command history (up/down arrows)
+- [x] Implement auto-complete for common commands
+- [x] Command syntax: `> query: [user input]`
+- [x] Add typing sound effects
+
+#### Step 3.5: Terminal Styling System (NEW)
+- [x] Create comprehensive CSS styling system
+- [x] Implement terminal.css with CRT-specific styles
+- [x] Add crt-effects.css for authentic retro appearance
+- [x] Create animations.css for smooth transitions
+- [x] Phosphor glow effects and scanline animations
 
 ### Phase 4: ASCII Art System
 
 #### Step 4.1: ASCII Art Library Creation
-- Create `ascii-library.ts` with country-specific art
-- Implement animation frame sequences
-- Design weather condition representations
-- Create transition effects between ASCII states
+- [x] Create `ascii-library.ts` with country-specific art
+- [x] Implement animation frame sequences
+- [x] Design weather condition representations
+- [x] Create transition effects between ASCII states
 
 #### Step 4.2: Country-Specific Animations
 1. **Japan ASCII Implementation**
+   - [x] Cherry blossom falling animation:
    ```
-   Cherry blossom falling animation:
    Frame 1:    ✿     ✿
               ╱┃╲   ╱┃╲
    Frame 2:     ✿ ✿
@@ -186,99 +196,115 @@ src/
    ```
 
 2. **Brazil Carnival Dancers**
-   - Multi-frame dance sequence
-   - Rhythmic movement patterns
-   - Colourful character combinations
+   - [x] Multi-frame dance sequence
+   - [x] Rhythmic movement patterns
+   - [x] Colourful character combinations
 
 3. **Egypt Pyramid Construction**
-   - Line-by-line building animation
-   - Sand particle effects
-   - Hieroglyph decorations
+   - [x] Line-by-line building animation
+   - [x] Sand particle effects
+   - [x] Hieroglyph decorations
 
 4. **Australia Kangaroo**
-   - Hopping animation across screen
-   - Trail effect implementation
-   - Speed variations
+   - [x] Hopping animation across screen
+   - [x] Trail effect implementation
+   - [x] Speed variations
 
 5. **France Eiffel Tower**
-   - Assembly from base to top
-   - Sparkling light effects
-   - Completion celebration
+   - [x] Assembly from base to top
+   - [x] Sparkling light effects
+   - [x] Completion celebration
 
 #### Step 4.3: Weather ASCII Integration
-- Implement dynamic weather displays
-- Animate rain, snow, and sun patterns
-- Create smooth transitions between weather states
-- Sync with actual weather data from tools
+- [x] Implement dynamic weather displays
+- [x] Animate rain, snow, and sun patterns
+- [x] Create smooth transitions between weather states
+- [x] Sync with actual weather data from tools
+
+#### Step 4.4: Animation Engine (NEW)
+- [x] Create AnimationEngine.tsx for smooth ASCII transitions
+- [x] Implement frame-by-frame animation system
+- [x] Add CountryArt.tsx for country-specific displays
+- [x] Create WeatherArt.tsx for weather condition animations
+- [x] Optimized rendering for performance
 
 ### Phase 5: Living World Globe Implementation
 
 #### Step 5.1: 3D Globe Foundation
-- Integrate Three.js or React Three Fiber
-- Create low-poly Earth mesh
-- Implement rotation controls
-- Add breathing animation (scale pulsing)
-- Set up camera positioning
+- [ ] Integrate Three.js or React Three Fiber
+- [ ] Create low-poly Earth mesh
+- [ ] Implement rotation controls
+- [ ] Add breathing animation (scale pulsing)
+- [ ] Set up camera positioning
+
+**Note: Globe components have been scaffolded (WorldGlobe.tsx, LocationPins.tsx, GlobeControls.tsx) but not yet implemented with 3D functionality.**
 
 #### Step 5.2: Interactive Features
-- Mouse drag rotation implementation
-- Zoom controls with limits
-- Country highlighting on hover
-- Click to focus on regions
-- Smooth camera transitions
+- [ ] Mouse drag rotation implementation
+- [ ] Zoom controls with limits
+- [ ] Country highlighting on hover
+- [ ] Click to focus on regions
+- [ ] Smooth camera transitions
 
 #### Step 5.3: Dynamic Data Visualisation
-- Location pin system for mentioned places
-- Connection lines between favourites
-- Real-time day/night terminator
-- Cloud coverage overlay (if available)
-- Heat map for conversation topics
+- [ ] Location pin system for mentioned places
+- [ ] Connection lines between favourites
+- [ ] Real-time day/night terminator
+- [ ] Cloud coverage overlay (if available)
+- [ ] Heat map for conversation topics
 
 #### Step 5.4: Ambient Animations
-- Aurora borealis at poles
-- Ocean current flows
-- Migration path visualisations
-- Volcano particle effects
-- City lights on night side
+- [ ] Aurora borealis at poles
+- [ ] Ocean current flows
+- [ ] Migration path visualisations
+- [ ] Volcano particle effects
+- [ ] City lights on night side
 
 ### Phase 6: Onboarding Flow with Terminal Style
 
 #### Step 6.1: Terminal-Style Onboarding
-- Create retro onboarding sequence
-- Each question appears as system prompt
-- User types answers in command format
-- Progress shown as loading bars
-- Questions:
+- [x] Create retro onboarding sequence
+- [x] Each question appears as system prompt
+- [x] User types answers in command format
+- [x] Progress shown as loading bars
+- [x] Questions:
   ```
   > SYSTEM: ENTER FAVOURITE COUNTRY:
   > USER: _
   ```
 
 #### Step 6.2: Preference Storage
-- Local storage implementation
-- Context integration with Mastra agent
-- Preference update mechanism
-- Visual confirmation animations
+- [x] Local storage implementation
+- [x] Context integration with Mastra agent
+- [x] Preference update mechanism
+- [x] Visual confirmation animations
+- [x] Working memory system for persistent preferences
 
 #### Step 6.3: ASCII Art Rewards
-- Display country ASCII art after selection
-- Celebration animation on completion
-- Transition to main terminal interface
+- [x] Display country ASCII art after selection
+- [x] Celebration animation on completion
+- [x] Transition to main terminal interface
+
+#### Step 6.4: Working Memory Integration (NEW)
+- [x] Implement working memory system for persistent user preferences
+- [x] Resource-scoped memory to maintain context across sessions
+- [x] Automatic preference storage and retrieval
+- [x] Context-aware agent responses based on stored preferences
 
 ### Phase 7: Chat Interface Enhancement
 
 #### Step 7.1: Message Display Styling
-- Green phosphor text for all messages
-- Typewriter effect for bot responses
-- User messages in dimmer green
-- Timestamp in corner (military time)
-- ASCII dividers between messages
+- [x] Green phosphor text for all messages
+- [x] Typewriter effect for bot responses
+- [x] User messages in dimmer green
+- [ ] Timestamp in corner (military time)
+- [ ] ASCII dividers between messages
 
 #### Step 7.2: Streaming Integration
-- Character-by-character display
-- Cursor animation during typing
-- Buffer management for smooth display
-- Error state handling with glitch effects
+- [x] Character-by-character display
+- [x] Cursor animation during typing
+- [x] Buffer management for smooth display
+- [x] Error state handling with glitch effects
 
 #### Step 7.3: Special Effects
 - "Signal interference" for loading
@@ -289,45 +315,45 @@ src/
 ### Phase 8: Sound Design Implementation
 
 #### Step 8.1: Audio System Setup
-- Create `sound-effects.ts` utility
-- Implement Web Audio API integration
-- Volume controls and muting option
-- Preload critical sounds
+- [x] Create `sound-effects.ts` utility
+- [x] Implement Web Audio API integration
+- [x] Volume controls and muting option
+- [x] Preload critical sounds
 
 #### Step 8.2: Sound Library
-- Keyboard typing sounds (mechanical)
-- Modem dial-up for connections
-- Success beeps and error buzzes
-- Ambient computer hum
-- Boot sequence sounds
-- Message received notifications
+- [x] Keyboard typing sounds (mechanical)
+- [ ] Modem dial-up for connections
+- [x] Success beeps and error buzzes
+- [ ] Ambient computer hum
+- [x] Boot sequence sounds
+- [ ] Message received notifications
 
 #### Step 8.3: Interactive Audio
-- Click feedback sounds
-- Hover effects for interactive elements
-- Globe rotation whoosh sounds
-- ASCII animation accompaniments
+- [ ] Click feedback sounds
+- [ ] Hover effects for interactive elements
+- [ ] Globe rotation whoosh sounds
+- [ ] ASCII animation accompaniments
 
 ### Phase 9: Command System and Easter Eggs
 
 #### Step 9.1: Command Parser Implementation
-- Create command recognition system
-- Implement help command with manual
-- Add system commands (clear, reset, about)
-- Create shortcuts for common queries
+- [x] Create command recognition system
+- [x] Implement help command with manual
+- [x] Add system commands (clear, reset, about)
+- [x] Create shortcuts for common queries
 
 #### Step 9.2: Easter Egg Features
-- `sudo explore world` - Unlock hidden features
-- `hack the planet` - Matrix rain effect
-- `/dance` - Trigger party mode with ASCII
-- `konami code` - Special animation sequence
-- Hidden ASCII art gallery
+- [ ] `sudo explore world` - Unlock hidden features
+- [ ] `hack the planet` - Matrix rain effect
+- [ ] `/dance` - Trigger party mode with ASCII
+- [ ] `konami code` - Special animation sequence
+- [ ] Hidden ASCII art gallery
 
 #### Step 9.3: Advanced Commands
-- `map [country]` - Focus globe on location
-- `weather [city]` - Quick weather check
-- `route [from] [to]` - Calculate distances
-- `trivia` - Start geography quiz mode
+- [ ] `map [country]` - Focus globe on location
+- [x] `weather [city]` - Quick weather check
+- [x] `route [from] [to]` - Calculate distances
+- [ ] `trivia` - Start geography quiz mode
 
 ### Phase 10: Performance Optimisation
 
