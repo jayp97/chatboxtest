@@ -40,7 +40,6 @@ export async function POST(req: Request) {
     const geographyExpert = mastra.getAgent("geographyExpert");
     
     if (!geographyExpert) {
-      console.error("[STREAM API] Geography expert agent not found");
       return new Response(
         JSON.stringify({ error: "SYSTEM ERROR: Agent offline" }),
         {
@@ -51,18 +50,20 @@ export async function POST(req: Request) {
     }
 
     // Generate thread and user IDs if not provided
-    const actualThreadId = threadId || `thread-${Date.now()}`;
-    const actualUserId = userId || `user-${Date.now()}`;
+    // Use consistent thread ID for session persistence
+    const actualThreadId = threadId || `geosys-terminal-thread`;
+    const actualUserId = userId || `geosys-user-${Date.now()}`;
 
     try {
-      console.log(`[GEOSYS] Processing query: ${message}`);
       
-      // Build context message with user preferences
+      // Build context message with user preferences for working memory
       const contextMessage = userPreferences 
-        ? `User preferences: 
-          Favourite Country: ${userPreferences.favouriteCountry || "Not set"}
-          Favourite Continent: ${userPreferences.favouriteContinent || "Not set"}
-          Favourite Destination: ${userPreferences.favouriteDestination || "Not set"}`
+        ? `GEOSYS PROFILE UPDATE: User has provided geographic preferences.
+          Favourite Country: ${userPreferences.favouriteCountry || "Not provided"}
+          Favourite Continent: ${userPreferences.favouriteContinent || "Not provided"}  
+          Favourite Destination: ${userPreferences.favouriteDestination || "Not provided"}
+          
+          Please update your working memory with these preferences and reference them naturally in responses.`
         : "";
 
       // Execute the agent with streaming
@@ -104,8 +105,7 @@ export async function POST(req: Request) {
             
             // Close the stream when done
             controller.close();
-          } catch (error) {
-            console.error("[GEOSYS] Streaming error:", error);
+          } catch {
             controller.enqueue(
               encoder.encode("\n\nSYSTEM ERROR: Stream interrupted. Please try again.")
             );
@@ -122,8 +122,7 @@ export async function POST(req: Request) {
           "Connection": "keep-alive",
         },
       });
-    } catch (error) {
-      console.error("[GEOSYS] Agent execution error:", error);
+    } catch {
       return new Response(
         JSON.stringify({ error: "SYSTEM ERROR: Agent malfunction" }),
         {
@@ -132,8 +131,7 @@ export async function POST(req: Request) {
         }
       );
     }
-  } catch (error) {
-    console.error("[STREAM API] Error:", error);
+  } catch {
     return new Response(
       JSON.stringify({
         error: "SYSTEM MALFUNCTION: Unable to process request",

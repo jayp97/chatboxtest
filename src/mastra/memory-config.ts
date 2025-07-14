@@ -20,6 +20,29 @@ export const agentMemory = new Memory({
   options: {
     lastMessages: 10, // Keep last 10 messages in context
     semanticRecall: false, // Disable semantic recall for now (requires embedder)
+    
+    // Working memory configuration to persist user preferences
+    workingMemory: {
+      enabled: true,
+      scope: 'resource', // Persist across all threads for the same user
+      template: `# User Geographic Preferences
+
+## Personal Details
+- **Favourite Country**: 
+- **Favourite Continent**: 
+- **Favourite Destination**: 
+
+## Conversation Context
+- **Current Topic**: 
+- **Recent Queries**: 
+- **Areas of Interest**: 
+
+## Geographic Learning
+- **Countries Discussed**: 
+- **New Facts Learned**: 
+- **Travel Interests**: 
+`,
+    },
   },
 });
 

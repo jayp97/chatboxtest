@@ -11,34 +11,24 @@ export default function Home() {
     favoriteDestination: ''
   })
 
-  console.log("🏠 Home Page Render:", {
-    isOnboarding,
-    userPreferences
-  });
 
   // Check if user has completed onboarding
   useEffect(() => {
-    console.log("💾 Checking localStorage for saved preferences...");
     const savedPreferences = localStorage.getItem('geosys-preferences')
     if (savedPreferences) {
-      console.log("✅ Found saved preferences:", savedPreferences);
       const preferences = JSON.parse(savedPreferences)
       setUserPreferences(preferences)
       setIsOnboarding(false)
-    } else {
-      console.log("❌ No saved preferences found, staying in onboarding");
     }
   }, [])
 
   const handleOnboardingComplete = (preferences: typeof userPreferences) => {
-    console.log("🎉 Onboarding completed with preferences:", preferences);
     setUserPreferences(preferences)
     localStorage.setItem('geosys-preferences', JSON.stringify(preferences))
     setIsOnboarding(false)
   }
 
   const handleResetPreferences = () => {
-    console.log("🔄 Resetting preferences and returning to onboarding");
     localStorage.removeItem('geosys-preferences')
     setIsOnboarding(true)
     setUserPreferences({

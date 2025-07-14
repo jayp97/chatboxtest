@@ -22,42 +22,30 @@ interface TerminalUIProps {
   onResetPreferences?: () => void;
 }
 
-export function TerminalUI({ onCommand, className = "", userPreferences, onResetPreferences }: TerminalUIProps) {
+export function TerminalUI({ onCommand, className = "", userPreferences }: TerminalUIProps) {
   const [isBooted, setIsBooted] = useState(false);
   const [terminalHistory, setTerminalHistory] = useState<string[]>([]);
   const terminalRef = useRef<HTMLDivElement>(null);
 
-  console.log("🔄 TerminalUI Render:", {
-    isBooted,
-    terminalHistoryLength: terminalHistory.length,
-    userPreferences,
-    className
-  });
 
   // Handle boot completion
   const handleBootComplete = () => {
-    console.log("✅ Boot sequence completed");
     setIsBooted(true);
   };
 
   // Handle command submission
   const handleCommand = async (command: string) => {
-    console.log("📝 Command received:", command);
-    
     // Add command to history
     setTerminalHistory(prev => {
       const newHistory = [...prev, `> ${command}`];
-      console.log("📚 Terminal history updated:", newHistory);
       return newHistory;
     });
     
     // Pass command to parent handler
-    console.log("🔗 Calling onCommand handler:", !!onCommand);
     onCommand?.(command);
     
     // If no parent handler, process the command directly
     if (!onCommand) {
-      console.log("🤖 Processing command directly via API");
       await processCommand(command);
     }
   };
@@ -65,16 +53,32 @@ export function TerminalUI({ onCommand, className = "", userPreferences, onReset
   // Process command via streaming API
   const processCommand = async (command: string) => {
     try {
-      console.log("🌐 Sending command to API:", command);
-      
+      // Convert userPreferences to the API format
+      const apiPreferences = userPreferences ? {
+        favouriteCountry: userPreferences.favoriteCountry,
+        favouriteContinent: userPreferences.favoriteContinent,
+        favouriteDestination: userPreferences.favoriteDestination
+      } : undefined;
+
+      // Get or create a persistent user ID for memory
+      let userId = localStorage.getItem('geosys-user-id');
+      if (!userId) {
+        userId = `geosys-user-${Date.now()}`;
+        localStorage.setItem('geosys-user-id', userId);
+      }
+
       const response = await fetch('/api/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: command })
+        body: JSON.stringify({ 
+          message: command,
+          userPreferences: apiPreferences,
+          userId: userId,
+          threadId: 'geosys-terminal-session'
+        })
       });
 
       if (!response.body) {
-        console.error("❌ No response body from API");
         addResponse("Error: No response from server");
         return;
       }
@@ -86,12 +90,9 @@ export function TerminalUI({ onCommand, className = "", userPreferences, onReset
       // Add empty response to history for streaming
       setTerminalHistory(prev => [...prev, '']);
       
-      console.log("📡 Starting to stream response...");
-      
       for (;;) {
         const { value, done } = await reader.read();
         if (done) {
-          console.log("✅ Streaming complete");
           break;
         }
         
@@ -106,29 +107,22 @@ export function TerminalUI({ onCommand, className = "", userPreferences, onReset
         });
       }
       
-      console.log("🎉 Final response:", aiResponse.substring(0, 100) + "...");
-      
     } catch (error) {
-      console.error("❌ Error processing command:", error);
       addResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
   // Handle new response
   const addResponse = (response: string) => {
-    console.log("📤 Adding response:", response);
     setTerminalHistory(prev => {
       const newHistory = [...prev, response];
-      console.log("📚 Terminal history after response:", newHistory);
       return newHistory;
     });
   };
 
   // Auto-scroll to bottom when history updates
   useEffect(() => {
-    console.log("🔄 Scroll effect triggered, history length:", terminalHistory.length);
     if (terminalRef.current) {
-      console.log("📜 Scrolling to bottom");
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [terminalHistory]);

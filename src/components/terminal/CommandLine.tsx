@@ -21,14 +21,6 @@ export function CommandLine({ onCommand }: CommandLineProps) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  console.log("⌨️  CommandLine Render:", {
-    input,
-    commandHistoryLength: commandHistory.length,
-    historyIndex,
-    cursorVisible,
-    showSuggestions,
-    suggestionsLength: suggestions.length
-  });
 
   // Common commands for auto-complete
   const commonCommands = [
@@ -100,25 +92,20 @@ export function CommandLine({ onCommand }: CommandLineProps) {
 
   // Submit command
   const handleSubmit = () => {
-    console.log("🚀 CommandLine handleSubmit called with input:", input);
     if (input.trim()) {
       // Add to history
       setCommandHistory(prev => {
         const newHistory = [...prev, input];
-        console.log("📚 Command history updated:", newHistory);
         return newHistory;
       });
       setHistoryIndex(-1);
       
       // Call parent handler
-      console.log("🔗 Calling onCommand with:", input, "handler exists:", !!onCommand);
       onCommand?.(input);
       
       // Clear input
       setInput("");
       setShowSuggestions(false);
-    } else {
-      console.log("⚠️  Input is empty, not submitting");
     }
   };
 
