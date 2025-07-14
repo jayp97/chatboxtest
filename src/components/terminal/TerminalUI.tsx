@@ -27,28 +27,108 @@ export function TerminalUI({ onCommand, className = "", userPreferences, onReset
   const [terminalHistory, setTerminalHistory] = useState<string[]>([]);
   const terminalRef = useRef<HTMLDivElement>(null);
 
+  console.log("🔄 TerminalUI Render:", {
+    isBooted,
+    terminalHistoryLength: terminalHistory.length,
+    userPreferences,
+    className
+  });
+
   // Handle boot completion
   const handleBootComplete = () => {
+    console.log("✅ Boot sequence completed");
     setIsBooted(true);
   };
 
   // Handle command submission
-  const handleCommand = (command: string) => {
+  const handleCommand = async (command: string) => {
+    console.log("📝 Command received:", command);
+    
     // Add command to history
-    setTerminalHistory(prev => [...prev, `> ${command}`]);
+    setTerminalHistory(prev => {
+      const newHistory = [...prev, `> ${command}`];
+      console.log("📚 Terminal history updated:", newHistory);
+      return newHistory;
+    });
     
     // Pass command to parent handler
+    console.log("🔗 Calling onCommand handler:", !!onCommand);
     onCommand?.(command);
+    
+    // If no parent handler, process the command directly
+    if (!onCommand) {
+      console.log("🤖 Processing command directly via API");
+      await processCommand(command);
+    }
+  };
+
+  // Process command via streaming API
+  const processCommand = async (command: string) => {
+    try {
+      console.log("🌐 Sending command to API:", command);
+      
+      const response = await fetch('/api/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: command })
+      });
+
+      if (!response.body) {
+        console.error("❌ No response body from API");
+        addResponse("Error: No response from server");
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let aiResponse = '';
+      
+      // Add empty response to history for streaming
+      setTerminalHistory(prev => [...prev, '']);
+      
+      console.log("📡 Starting to stream response...");
+      
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) {
+          console.log("✅ Streaming complete");
+          break;
+        }
+        
+        const chunk = decoder.decode(value);
+        aiResponse += chunk;
+        
+        // Update the last (empty) response with streamed content
+        setTerminalHistory(prev => {
+          const newHistory = [...prev];
+          newHistory[newHistory.length - 1] = aiResponse;
+          return newHistory;
+        });
+      }
+      
+      console.log("🎉 Final response:", aiResponse.substring(0, 100) + "...");
+      
+    } catch (error) {
+      console.error("❌ Error processing command:", error);
+      addResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   };
 
   // Handle new response
   const addResponse = (response: string) => {
-    setTerminalHistory(prev => [...prev, response]);
+    console.log("📤 Adding response:", response);
+    setTerminalHistory(prev => {
+      const newHistory = [...prev, response];
+      console.log("📚 Terminal history after response:", newHistory);
+      return newHistory;
+    });
   };
 
   // Auto-scroll to bottom when history updates
   useEffect(() => {
+    console.log("🔄 Scroll effect triggered, history length:", terminalHistory.length);
     if (terminalRef.current) {
+      console.log("📜 Scrolling to bottom");
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
   }, [terminalHistory]);
@@ -63,7 +143,7 @@ export function TerminalUI({ onCommand, className = "", userPreferences, onReset
         {/* Terminal frame */}
         <div className="w-full max-w-[900px] h-[600px] bg-[#0a0a0a] border-2 border-gray-800 rounded-lg overflow-hidden terminal-glow">
           {/* Title bar */}
-          <div className="h-8 bg-[#1a1a1a] border-b border-gray-800 flex items-center justify-between px-3 select-none">
+          <div className="h-8 bg-[#1a1a1a] border-b border-gray-800 flex items-center justify-between px-3 py-2 select-none">
             <div className="flex gap-2">
               <span className="w-3 h-3 bg-red-500 rounded-full"></span>
               <span className="w-3 h-3 bg-yellow-500 rounded-full"></span>
@@ -81,7 +161,7 @@ export function TerminalUI({ onCommand, className = "", userPreferences, onReset
           {/* Terminal screen */}
           <div 
             ref={terminalRef}
-            className="terminal-screen h-[calc(100%-32px)] bg-black text-green-400 p-5 overflow-y-auto text-sm leading-relaxed phosphor-glow"
+            className="terminal-screen h-[calc(100%-32px)] bg-black text-green-400 px-5 py-6 overflow-y-auto text-sm leading-relaxed phosphor-glow"
           >
             {/* Boot sequence or main content */}
             {!isBooted ? (

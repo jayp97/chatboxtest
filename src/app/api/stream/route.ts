@@ -1,12 +1,12 @@
 /**
  * /api/stream/route.ts
- * Edge runtime streaming endpoint for GEOSYS Terminal
+ * Node.js runtime streaming endpoint for GEOSYS Terminal
  * Integrates with Mastra agent for geography queries
  */
 
 import { mastra } from "@/mastra";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 // Define request/response types
 interface ChatRequest {

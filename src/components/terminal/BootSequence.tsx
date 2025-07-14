@@ -19,21 +19,28 @@ interface BootStep {
   isComplete?: boolean;
 }
 
+const BOOT_STEPS: BootStep[] = [
+  { text: "GEOSYS v4.2.1 INITIALISING...", duration: 2000 },
+  { text: "CHECKING SYSTEM INTEGRITY... ", duration: 1500 },
+  { text: "CHECKING SYSTEM INTEGRITY... OK", duration: 500, isComplete: true },
+  { text: "LOADING WORLD DATABASE... ", duration: 2500, showProgress: true },
+  { text: "ESTABLISHING SATELLITE UPLINK... ", duration: 2000 },
+  { text: "CONNECTION ESTABLISHED", duration: 1000, isComplete: true },
+  { text: "READY. TYPE 'HELLO' TO BEGIN", duration: 1000, isComplete: true },
+];
+
 export function BootSequence({ onComplete }: BootSequenceProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [cursorVisible, setCursorVisible] = useState(true);
 
-  const bootSteps: BootStep[] = [
-    { text: "GEOSYS v4.2.1 INITIALISING...", duration: 2000 },
-    { text: "CHECKING SYSTEM INTEGRITY... ", duration: 1500 },
-    { text: "CHECKING SYSTEM INTEGRITY... OK", duration: 500, isComplete: true },
-    { text: "LOADING WORLD DATABASE... ", duration: 2500, showProgress: true },
-    { text: "ESTABLISHING SATELLITE UPLINK... ", duration: 2000 },
-    { text: "CONNECTION ESTABLISHED", duration: 1000, isComplete: true },
-    { text: "READY. TYPE 'HELLO' TO BEGIN", duration: 1000, isComplete: true },
-  ];
+  console.log("🚀 BootSequence Render:", {
+    currentStep,
+    progress,
+    displayText: displayText ? displayText.substring(0, 20) + "..." : "empty",
+    cursorVisible
+  });
 
   // Cursor blink effect
   useEffect(() => {
@@ -45,15 +52,19 @@ export function BootSequence({ onComplete }: BootSequenceProps) {
 
   // Typewriter effect for current step
   useEffect(() => {
-    if (currentStep >= bootSteps.length) {
+    console.log("📝 Boot step effect triggered:", { currentStep, totalSteps: BOOT_STEPS.length });
+    
+    if (currentStep >= BOOT_STEPS.length) {
       // Boot sequence complete
+      console.log("🎉 Boot sequence complete, calling onComplete");
       setTimeout(() => {
         onComplete?.();
       }, 1000);
       return;
     }
 
-    const step = bootSteps[currentStep];
+    const step = BOOT_STEPS[currentStep];
+    console.log("⚡ Starting step:", step.text);
     let charIndex = 0;
     setDisplayText("");
     setProgress(0);
@@ -91,19 +102,20 @@ export function BootSequence({ onComplete }: BootSequenceProps) {
     }, 30);
 
     return () => clearInterval(typeInterval);
-  }, [currentStep, bootSteps, onComplete]);
+  }, [currentStep, onComplete]);
 
   // Render progress bar
   const renderProgressBar = () => {
-    const filled = Math.floor(progress / 5);
+    const safeProgress = progress || 0;
+    const filled = Math.floor(safeProgress / 5);
     const empty = 20 - filled;
-    return `[${"\u2588".repeat(filled)}${" ".repeat(empty)}] ${progress}%`;
+    return `[${"\u2588".repeat(filled)}${" ".repeat(empty)}] ${safeProgress}%`;
   };
 
   // Get all previous steps for display
-  const previousSteps = bootSteps.slice(0, currentStep).map((step, index) => (
+  const previousSteps = BOOT_STEPS.slice(0, currentStep).map((step, index) => (
     <div key={index} className="mb-2 text-green-400">
-      {step.text}
+      {step.text || ""}
       {step.showProgress && " [████████████████████] 100%"}
     </div>
   ));
@@ -114,13 +126,13 @@ export function BootSequence({ onComplete }: BootSequenceProps) {
       {previousSteps}
       
       {/* Display current step with typewriter effect */}
-      {currentStep < bootSteps.length && (
+      {currentStep < BOOT_STEPS.length && (
         <div className="mb-2 text-green-400">
-          <span>{displayText}</span>
-          {bootSteps[currentStep].showProgress && progress > 0 && (
+          <span>{displayText || ""}</span>
+          {BOOT_STEPS[currentStep].showProgress && progress > 0 && (
             <span>{renderProgressBar()}</span>
           )}
-          {!bootSteps[currentStep].isComplete && cursorVisible && (
+          {!BOOT_STEPS[currentStep].isComplete && cursorVisible && (
             <span className="animate-pulse">█</span>
           )}
         </div>

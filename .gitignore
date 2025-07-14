@@ -42,3 +42,10 @@ next-env.d.ts
 
 # mastra
 .mastra
+*geography-bot*
+*geography-memory*
+geography-bot.db
+geography-memory.db
+*.db
+*.sqlite
+*.sqlite3
