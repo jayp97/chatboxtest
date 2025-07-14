@@ -99,7 +99,7 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
           addResponse("> PROFILE LOADED SUCCESSFULLY");
           addResponse("");
           addResponse("Welcome back to GEOSYS v4.2.1");
-          addResponse("Type 'help' for available commands");
+          addResponse("Type '/help' for available commands");
         }
       }
     } catch (error) {
@@ -168,7 +168,7 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
         addResponse("> PREFERENCES STORED SUCCESSFULLY");
         addResponse("");
         addResponse("Welcome to GEOSYS v4.2.1 - Geographic Intelligence Terminal");
-        addResponse("Type 'help' for available commands");
+        addResponse("Type '/help' for available commands");
         break;
     }
   };

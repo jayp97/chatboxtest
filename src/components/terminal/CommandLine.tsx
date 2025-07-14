@@ -23,17 +23,23 @@ export function CommandLine({ onCommand }: CommandLineProps) {
 
 
   // Common commands for auto-complete
+  // Commands are divided into two categories:
+  // 1. System commands (start with /): Terminal control commands like /help, /clear, etc.
+  // 2. Chat queries (no prefix): Geography questions sent to the AI agent like "weather in London"
   const commonCommands = [
+    // System commands - control the terminal interface
+    "/help",
+    "/clear",
+    "/about",
+    "/status",
+    "/preferences",
+    // Chat query keywords - sent to the geography AI agent
     "hello",
-    "help",
     "weather",
     "info",
     "distance",
     "trivia",
     "map",
-    "clear",
-    "about",
-    "preferences",
   ];
 
   // Focus input on mount
@@ -224,7 +230,7 @@ export function CommandLine({ onCommand }: CommandLineProps) {
       {/* Command hints */}
       {input.length === 0 && (
         <div className="mt-2 text-green-400/40 text-xs">
-          Type 'help' for commands • Use ↑/↓ for history • TAB for auto-complete
+          Type '/help' for commands • Use ↑/↓ for history • TAB for auto-complete
         </div>
       )}
     </div>
