@@ -1,45 +1,110 @@
 /**
  * crt-effects.css
- * CRT monitor effects
- * Scanlines, flicker, and phosphor glow
+ * CRT monitor visual effects styles
  */
 
-.crt-effects {
-  pointer-events: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+/* Scanlines effect */
+.crt-scanlines {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.1) 51%,
+    transparent 52%,
+    transparent 100%
+  );
+  background-size: 100% 4px;
+  animation: scanlines 8s linear infinite;
 }
 
-/* Scanlines */
-.scanlines::before {
+@keyframes scanlines {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 10px; }
+}
+
+/* Screen curvature effect */
+.crt-curve {
+  border-radius: 50% / 10%;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Vignette effect */
+.crt-vignette {
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    transparent 40%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+}
+
+/* Chromatic aberration */
+.crt-chromatic {
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 0, 0, 0.03) 2px,
+      rgba(255, 0, 0, 0.03) 4px
+    ),
+    repeating-linear-gradient(
+      180deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 255, 0.03) 2px,
+      rgba(0, 255, 255, 0.03) 4px
+    );
+  animation: chromatic 10s linear infinite;
+}
+
+@keyframes chromatic {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(1px, 0); }
+  50% { transform: translate(0, 1px); }
+  75% { transform: translate(-1px, 0); }
+}
+
+/* Noise overlay */
+.crt-noise::before {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.15),
-    rgba(0, 0, 0, 0.15) 1px,
-    transparent 1px,
-    transparent 2px
-  );
-  pointer-events: none;
-  z-index: 1;
+  width: 200%;
+  height: 200%;
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)"/></svg>');
+  animation: noise 0.5s steps(10) infinite;
 }
 
-/* Flicker effect */
-@keyframes flicker {
-  0% { opacity: 0.97; }
-  50% { opacity: 1; }
-  100% { opacity: 0.98; }
+@keyframes noise {
+  0% { transform: translate(0, 0); }
+  10% { transform: translate(-5%, -10%); }
+  20% { transform: translate(-15%, 5%); }
+  30% { transform: translate(7%, -25%); }
+  40% { transform: translate(-5%, 25%); }
+  50% { transform: translate(-15%, 10%); }
+  60% { transform: translate(15%, 0); }
+  70% { transform: translate(0, 15%); }
+  80% { transform: translate(3%, -15%); }
+  90% { transform: translate(-10%, 10%); }
+  100% { transform: translate(0, 0); }
 }
 
-.flicker {
-  animation: flicker 0.15s infinite;
+/* Phosphor glow effect */
+.phosphor-glow {
+  text-shadow: 0 0 3px rgba(0, 255, 0, 0.8);
+}
+
+/* Terminal text glow */
+.terminal-glow {
+  box-shadow: 
+    0 0 20px rgba(0, 255, 0, 0.5),
+    inset 0 0 20px rgba(0, 255, 0, 0.1);
+}
+
+/* Status indicator pulse */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }

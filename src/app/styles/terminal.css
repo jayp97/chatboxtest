@@ -34,3 +34,28 @@
   outline: none;
   flex: 1;
 }
+
+/* Custom scrollbar styles */
+.terminal-screen::-webkit-scrollbar {
+  width: 8px;
+}
+
+.terminal-screen::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
+.terminal-screen::-webkit-scrollbar-thumb {
+  background: #00ff00;
+  border-radius: 4px;
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.terminal-screen::-webkit-scrollbar-thumb:hover {
+  background: #00cc00;
+}
+
+/* Firefox scrollbar */
+.terminal-screen {
+  scrollbar-width: thin;
+  scrollbar-color: #00ff00 #0a0a0a;
+}

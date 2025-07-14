@@ -49,6 +49,10 @@ Copy `.env.example` to `.env` and add OpenAI API keys:
 - No database required (mock data is acceptable)
 - Maintain Edge runtime for the streaming endpoint
 
+## Styling
+
+Where you can use lastest tailwind! If this is not possible then using other styling approaches if you require complex styling that cannot be done with tailwind!
+
 ## Language
 
 Use British English throughout all files, specs and documentation, and ensure that all code is clearly and professionally commented.
