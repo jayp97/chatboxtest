@@ -12,6 +12,8 @@ import { BootSequence } from "./BootSequence";
 import { CommandLine } from "./CommandLine";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { parseCommand } from "@/utils/terminal-commands";
+import { usePreferenceUpdates } from "@/components/chat/usePreferenceUpdates";
+import { notifyPreferenceUpdate } from "@/utils/preference-updater";
 
 interface TerminalUIProps {
   onCommand?: (command: string) => void;
@@ -38,6 +40,9 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
     currentStep: 'country',
     answers: {}
   });
+  
+  // Hook to detect preference updates in chat
+  const { triggerUpdate } = usePreferenceUpdates();
   const terminalRef = useRef<HTMLDivElement>(null);
 
 
@@ -169,6 +174,14 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
         addResponse("");
         addResponse("Welcome to GEOSYS v4.2.1 - Geographic Intelligence Terminal");
         addResponse("Type '/help' for available commands");
+        
+        // Notify globe to update pins after onboarding completes
+        console.log("🌍 [TERMINAL] Onboarding complete, notifying globe to update pins");
+        notifyPreferenceUpdate({
+          source: 'onboarding-complete',
+          preferences: updatedAnswers,
+          timestamp: new Date().toISOString()
+        });
         break;
     }
   };
@@ -263,6 +276,19 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
         
         // Send update request to agent
         await processCommand(`Update my favourite ${field} to ${value}`);
+        
+        // Notify globe after preference update
+        console.log("🌍 [TERMINAL] Preference update requested, will notify globe after confirmation");
+        // We'll detect the actual update from the agent's response
+        setTimeout(() => {
+          notifyPreferenceUpdate({
+            source: 'preference-command',
+            field,
+            value,
+            timestamp: new Date().toISOString()
+          });
+        }, 2000); // Give agent time to process
+        
         return;
       }
       
@@ -331,6 +357,21 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
         // The agent's response will contain the preferences
         // We'll display the raw response from the agent
         console.log("Preferences query response:", aiResponse);
+      }
+      
+      // Check if response indicates preferences were updated
+      const lowerResponse = aiResponse.toLowerCase();
+      if (lowerResponse.includes("updated") && 
+          (lowerResponse.includes("favourite") || lowerResponse.includes("favorite")) &&
+          (lowerResponse.includes("country") || lowerResponse.includes("destination") || lowerResponse.includes("city"))) {
+        console.log("🎯 [TERMINAL] Detected preference update in agent response");
+        
+        // Notify globe of the update
+        notifyPreferenceUpdate({
+          source: 'agent-confirmation',
+          message: aiResponse.substring(0, 200),
+          timestamp: new Date().toISOString()
+        });
       }
       
     } catch (error) {

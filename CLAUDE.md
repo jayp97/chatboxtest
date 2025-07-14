@@ -61,9 +61,9 @@ Use British English throughout all files, specs and documentation, and ensure th
 
 run `afplay /System/Library/Sounds/Glass.aiff` (or any other system sound) at the end of the tasks, or when my input is needed from me to proceed with a task.
 
-## Dev logs
+<!-- ## Dev logs
 
-At the end of every session create a new file in the `docs/dev-logs` directory with the date and a detailed summary of the session, including when sucessfully git commited and pushed.
+At the end of every session create a new file in the `docs/dev-logs` directory with the date and a detailed summary of the session, including when sucessfully git commited and pushed. -->
 
 ## MODEL Usage
 

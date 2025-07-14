@@ -14,6 +14,7 @@ import { GlobeControls } from "./GlobeControls";
 import { LocationPins } from "./LocationPins";
 import { StarField } from "./StarField";
 import { getUserLocationPins, type LocationCoordinate } from "@/utils/location-service";
+import { preferenceEvents } from "@/utils/preference-events";
 // import { Perf } from "@react-three/drei"; // Performance monitor (optional)
 
 interface GlobeContainerProps {
@@ -116,10 +117,21 @@ export function GlobeContainer({
       }
     };
 
-    // Delay location loading until after initial globe load
-    console.log('⏱️ [DEBUG] GlobeContainer - Setting timer for location loading...');
-    const timer = setTimeout(loadUserLocations, 1000);
-    return () => clearTimeout(timer);
+    // Initial load after globe renders
+    console.log('⏱️ [DEBUG] GlobeContainer - Setting timer for initial location loading...');
+    const initialTimer = setTimeout(loadUserLocations, 1000);
+    
+    // Listen for preference updates - NO POLLING!
+    console.log('👂 [DEBUG] GlobeContainer - Setting up preference update listener...');
+    const unsubscribe = preferenceEvents.onPreferenceUpdate((event) => {
+      console.log('🎯 [DEBUG] GlobeContainer - Preference update detected!', event.detail);
+      loadUserLocations();
+    });
+    
+    return () => {
+      clearTimeout(initialTimer);
+      unsubscribe();
+    };
   }, []);
   
   if (!webGLSupported) {
