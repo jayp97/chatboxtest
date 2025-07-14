@@ -138,6 +138,7 @@ export function convertPreferencesToLocations(
         };
         
         console.log("✅ [DEBUG] Adding destination pin:", pin);
+        console.log(`📍 DESTINATION COORDS: ${preferences.favouriteDestination} at lat:${lat}, lng:${lng}`);
         locations.push(pin);
       } else {
         console.warn("⚠️ [DEBUG] Invalid coordinate format:", coords);
@@ -174,6 +175,7 @@ export function convertPreferencesToLocations(
         };
         
         console.log("✅ [DEBUG] Adding country pin:", pin);
+        console.log(`🌍 COUNTRY COORDS: ${preferences.favouriteCountry} at lat:${lat}, lng:${lng}`);
         locations.push(pin);
       } else {
         console.warn("⚠️ [DEBUG] Invalid coordinate format:", coords);

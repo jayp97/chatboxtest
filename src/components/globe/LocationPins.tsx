@@ -27,10 +27,18 @@ interface LocationPinsProps {
 function LocationPin({ location, globeRadius = 3 }: { location: Location; globeRadius?: number }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
   
   // Convert lat/lng to 3D coordinates using existing vertex function
   const pinRadius = globeRadius + 0.1; // Slightly above globe surface
   const pinPosition = vertex([location.lng, location.lat], pinRadius);
+  
+  // Debug log the position
+  console.log(`📍 Pin "${location.name}" at lat:${location.lat} lng:${location.lng} -> pos:`, {
+    x: pinPosition.x.toFixed(2), 
+    y: pinPosition.y.toFixed(2), 
+    z: pinPosition.z.toFixed(2)
+  });
   
   // Pin colors based on type
   const colors = {
@@ -53,7 +61,10 @@ function LocationPin({ location, globeRadius = 3 }: { location: Location; globeR
   const glowSize = pinSize * 2;
   
   return (
-    <group position={[pinPosition.x, pinPosition.y, pinPosition.z]}>
+    <group 
+      ref={groupRef}
+      position={[pinPosition.x, pinPosition.y, pinPosition.z]}
+    >
       {/* Pin sphere */}
       <mesh ref={meshRef}>
         <sphereGeometry args={[pinSize, 16, 16]} />
@@ -76,21 +87,32 @@ function LocationPin({ location, globeRadius = 3 }: { location: Location; globeR
 export function LocationPins({ locations, globeRadius = 3 }: LocationPinsProps) {
   const groupRef = useRef<THREE.Group>(null);
   
-  // Rotate the group to match the globe's animation
+  // Log locations for debugging
   useFrame((state, delta) => {
     if (groupRef.current) {
       // The globe rotates around Y axis at delta * 0.05
-      // But since we're flipped by Math.PI around X, Y rotation is reversed
-      groupRef.current.rotation.y -= delta * 0.05;
+      // We need to match this rotation exactly
+      groupRef.current.rotation.y += delta * 0.05;
     }
+  });
+  
+  // Debug log locations
+  console.log('📍 [DEBUG] LocationPins rendering with:', {
+    locationCount: locations.length,
+    globeRadius,
+    locations: locations.map(loc => ({
+      name: loc.name,
+      lat: loc.lat,
+      lng: loc.lng,
+      type: loc.type
+    }))
   });
   
   return (
     <group 
       ref={groupRef} 
       name="location-pins"
-      // Apply the same initial X rotation as the globe to match its coordinate system
-      rotation={[Math.PI, 0, 0]}
+      // No rotation - pins use world coordinates directly
     >
       {locations.map((location) => {
         return (
