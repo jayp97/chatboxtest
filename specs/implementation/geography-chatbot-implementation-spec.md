@@ -92,11 +92,11 @@ src/
 - [x] Initialise agent registry
 
 #### Step 2.2: Geography Expert Agent Creation
-- [ ] Implement `geography-expert.ts` with personality traits
-- [ ] Configure GPT-4.1 model via OpenAI
-- [ ] Add British English language instructions
-- [ ] Set up conversation memory with context retention
-- [ ] Configure streaming capabilities
+- [x] Implement `geography-expert.ts` with personality traits
+- [x] Configure GPT-4.1 model via OpenAI
+- [x] Add British English language instructions
+- [x] Set up conversation memory with context retention
+- [x] Configure streaming capabilities
 
 #### Step 2.3: Tool Development
 1. **Country Information Tool**
