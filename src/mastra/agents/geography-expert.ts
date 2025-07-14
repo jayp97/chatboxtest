@@ -8,6 +8,10 @@ import { Agent } from "@mastra/core";
 import { openai } from "@ai-sdk/openai";
 import { agentMemory } from "../memory-config";
 import { z } from "zod";
+import { countryInfoTool } from "../tools/country-info";
+import { weatherTool } from "../tools/weather-tool";
+import { distanceCalculatorTool } from "../tools/distance-calculator";
+import { asciiGeneratorTool } from "../tools/ascii-generator";
 
 // Define the agent's personality and capabilities
 export const geographyExpert = new Agent({
@@ -61,8 +65,13 @@ ERROR HANDLING:
   // Memory configuration for conversation persistence
   memory: agentMemory,
 
-  // Tool configuration (to be added in Step 2.3)
-  tools: {},
+  // Tool configuration with all geography tools
+  tools: {
+    countryInfo: countryInfoTool,
+    weather: weatherTool,
+    distanceCalculator: distanceCalculatorTool,
+    asciiGenerator: asciiGeneratorTool,
+  },
 });
 
 // Helper function to format responses in terminal style
