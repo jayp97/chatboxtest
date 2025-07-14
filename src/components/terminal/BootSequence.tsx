@@ -34,13 +34,7 @@ export function BootSequence({ onComplete }: BootSequenceProps) {
   const [progress, setProgress] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [cursorVisible, setCursorVisible] = useState(true);
-
-  console.log("🚀 BootSequence Render:", {
-    currentStep,
-    progress,
-    displayText: displayText ? displayText.substring(0, 20) + "..." : "empty",
-    cursorVisible
-  });
+  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
 
   // Cursor blink effect
   useEffect(() => {
@@ -52,11 +46,8 @@ export function BootSequence({ onComplete }: BootSequenceProps) {
 
   // Typewriter effect for current step
   useEffect(() => {
-    console.log("📝 Boot step effect triggered:", { currentStep, totalSteps: BOOT_STEPS.length });
-    
     if (currentStep >= BOOT_STEPS.length) {
       // Boot sequence complete
-      console.log("🎉 Boot sequence complete, calling onComplete");
       setTimeout(() => {
         onComplete?.();
       }, 1000);
@@ -64,7 +55,6 @@ export function BootSequence({ onComplete }: BootSequenceProps) {
     }
 
     const step = BOOT_STEPS[currentStep];
-    console.log("⚡ Starting step:", step.text);
     let charIndex = 0;
     setDisplayText("");
     setProgress(0);
@@ -72,7 +62,7 @@ export function BootSequence({ onComplete }: BootSequenceProps) {
     // Typewriter effect
     const typeInterval = setInterval(() => {
       if (charIndex < step.text.length) {
-        setDisplayText(prev => prev + step.text[charIndex]);
+        setDisplayText(step.text.slice(0, charIndex + 1));
         charIndex++;
       } else {
         clearInterval(typeInterval);
@@ -86,15 +76,17 @@ export function BootSequence({ onComplete }: BootSequenceProps) {
               currentProgress += 2;
             } else {
               clearInterval(progressInterval);
-              // Move to next step after progress completes
-              setTimeout(() => {
-                setCurrentStep(prev => prev + 1);
-              }, 500);
+              // Add completed step with progress and move to next step simultaneously
+              setCompletedSteps(prev => [...prev, step.text + " [████████████████████] 100%"]);
+              setDisplayText("");
+              setCurrentStep(prev => prev + 1);
             }
           }, 30);
         } else {
-          // Move to next step after duration
+          // Add completed step and move to next step simultaneously
           setTimeout(() => {
+            setCompletedSteps(prev => [...prev, step.text]);
+            setDisplayText("");
             setCurrentStep(prev => prev + 1);
           }, step.isComplete ? 500 : 100);
         }
@@ -106,29 +98,25 @@ export function BootSequence({ onComplete }: BootSequenceProps) {
 
   // Render progress bar
   const renderProgressBar = () => {
-    const safeProgress = progress || 0;
+    const safeProgress = Math.max(0, Math.min(100, progress || 0));
     const filled = Math.floor(safeProgress / 5);
-    const empty = 20 - filled;
-    return `[${"\u2588".repeat(filled)}${" ".repeat(empty)}] ${safeProgress}%`;
+    const empty = Math.max(0, 20 - filled);
+    return ` [${"\u2588".repeat(filled)}${" ".repeat(empty)}] ${safeProgress}%`;
   };
-
-  // Get all previous steps for display
-  const previousSteps = BOOT_STEPS.slice(0, currentStep).map((step, index) => (
-    <div key={index} className="mb-2 text-green-400">
-      {step.text || ""}
-      {step.showProgress && " [████████████████████] 100%"}
-    </div>
-  ));
 
   return (
     <div className="boot-sequence font-mono">
-      {/* Display previous steps */}
-      {previousSteps}
+      {/* Display completed steps */}
+      {completedSteps.map((step, index) => (
+        <div key={index} className="mb-2 text-green-400">
+          {step}
+        </div>
+      ))}
       
       {/* Display current step with typewriter effect */}
-      {currentStep < BOOT_STEPS.length && (
+      {currentStep < BOOT_STEPS.length && displayText && (
         <div className="mb-2 text-green-400">
-          <span>{displayText || ""}</span>
+          <span>{displayText}</span>
           {BOOT_STEPS[currentStep].showProgress && progress > 0 && (
             <span>{renderProgressBar()}</span>
           )}
