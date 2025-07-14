@@ -264,7 +264,7 @@ export function ObservableGlobe({
         geometry={sphereGeometry}
         material={sphereMaterial}
         position={[0, 0, 0]}
-        rotation={[Math.PI, 0, 0]} // Flip upright so Northern Hemisphere is at top
+        rotation={[Math.PI, Math.PI, 0]} // Flip upright and correct mirror effect
         castShadow
         receiveShadow
       />
