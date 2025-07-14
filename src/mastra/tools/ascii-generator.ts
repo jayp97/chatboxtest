@@ -6,23 +6,33 @@
 
 import { z } from "zod";
 import { createTool } from "@mastra/core";
+import { 
+  getCountryArt, 
+  getWeatherArt, 
+  combineAsciiArt, 
+  createBorder, 
+  createAsciiTable,
+  ASCII_SPECIAL 
+} from "@/app/utils/ascii-library";
 
 // Define the input schema
 const asciiInputSchema = z.object({
-  type: z.enum(["country", "weather"]).describe("Type of ASCII art to generate"),
-  value: z.string().describe("Country name or weather condition"),
+  type: z.enum(["country", "weather", "special"]).describe("Type of ASCII art to generate"),
+  value: z.string().describe("Country name, weather condition, or special effect"),
   animated: z.boolean().optional().default(false).describe("Whether to include animation frames"),
+  showLandmark: z.boolean().optional().default(false).describe("Show landmark for countries"),
 });
 
 // Define the output schema
 const asciiOutputSchema = z.object({
-  type: z.enum(["country", "weather"]),
+  type: z.enum(["country", "weather", "special"]),
   name: z.string(),
   art: z.string().describe("Primary ASCII art"),
   frames: z.array(z.string()).optional().describe("Animation frames if animated"),
   animationSpeed: z.number().optional().describe("Milliseconds between frames"),
   width: z.number().describe("Width of the ASCII art"),
   height: z.number().describe("Height of the ASCII art"),
+  landmark: z.string().optional().describe("Landmark ASCII art for countries"),
 });
 
 // Country ASCII art library
@@ -392,65 +402,89 @@ export const asciiGeneratorTool = createTool({
   inputSchema: asciiInputSchema,
   
   execute: async ({ context }) => {
-    const { type, value, animated } = context;
+    const { type, value, animated, showLandmark } = context;
     try {
       if (type === "country") {
-        // Normalise country name
-        const normalised = value.toLowerCase().trim();
-        const countryArt = countryAsciiArt[normalised];
+        const countryData = getCountryArt(value);
         
-        if (!countryArt) {
-          // Generate generic country art if not found
-          return generateGenericCountryArt(value);
+        let artToUse = countryData.static;
+        let frames: string[] | undefined;
+        
+        if (showLandmark && countryData.landmark) {
+          artToUse = countryData.landmark;
+        } else if (animated && countryData.animated) {
+          frames = countryData.animated.frames.map(f => f.content);
+          artToUse = frames[0] || countryData.static;
         }
         
-        const lines = countryArt.art.trim().split('\n');
+        const lines = artToUse.trim().split('\n');
         const width = Math.max(...lines.map(l => l.length));
         const height = lines.length;
         
         return {
           type: "country",
           name: value,
-          art: countryArt.art.trim(),
-          frames: animated && countryArt.frames ? countryArt.frames.map(f => f.trim()) : undefined,
-          animationSpeed: animated && countryArt.frames ? 500 : undefined,
+          art: artToUse.trim(),
+          frames,
+          animationSpeed: animated && countryData.animated ? 500 : undefined,
           width,
           height,
+          landmark: countryData.landmark,
         };
-      } else {
-        // Weather type
-        const normalised = value.toLowerCase();
-        let weatherArt = null;
+      } else if (type === "weather") {
+        const weatherAnimation = getWeatherArt(value);
         
-        // Find matching weather pattern
-        for (const [key, art] of Object.entries(weatherAsciiArt)) {
-          if (normalised.includes(key) || key.includes(normalised)) {
-            weatherArt = art;
-            break;
-          }
+        if (!weatherAnimation) {
+          // Return generic weather art
+          return {
+            type: "weather",
+            name: value,
+            art: `
+    ???
+   (   )
+    ???
+    Unknown weather condition`,
+            width: 25,
+            height: 4,
+          };
         }
         
-        // Default weather patterns
-        if (!weatherArt) {
-          if (normalised.includes("clear")) weatherArt = weatherAsciiArt["clear sky"];
-          else if (normalised.includes("cloud")) weatherArt = weatherAsciiArt["partly cloudy"];
-          else if (normalised.includes("rain")) weatherArt = weatherAsciiArt.rain;
-          else if (normalised.includes("snow")) weatherArt = weatherAsciiArt.snow;
-          else if (normalised.includes("storm")) weatherArt = weatherAsciiArt.thunderstorm;
-          else if (normalised.includes("fog")) weatherArt = weatherAsciiArt.foggy;
-          else weatherArt = weatherAsciiArt["partly cloudy"]; // Default
-        }
-        
-        const lines = weatherArt.art.trim().split('\n');
+        const firstFrame = weatherAnimation.frames[0];
+        const lines = firstFrame.content.trim().split('\n');
         const width = Math.max(...lines.map(l => l.length));
         const height = lines.length;
         
         return {
           type: "weather",
           name: value,
-          art: weatherArt.art.trim(),
-          frames: animated && weatherArt.frames ? weatherArt.frames.map(f => f.trim()) : undefined,
-          animationSpeed: animated && weatherArt.frames ? 300 : undefined,
+          art: firstFrame.content.trim(),
+          frames: animated ? weatherAnimation.frames.map(f => f.content) : undefined,
+          animationSpeed: animated ? 300 : undefined,
+          width,
+          height,
+        };
+      } else if (type === "special") {
+        // Handle special ASCII art
+        const specialArt = ASCII_SPECIAL[value as keyof typeof ASCII_SPECIAL];
+        
+        if (!specialArt) {
+          return {
+            type: "special",
+            name: value,
+            art: `Special effect "${value}" not found`,
+            width: 30,
+            height: 1,
+          };
+        }
+        
+        const lines = specialArt.trim().split('\n');
+        const width = Math.max(...lines.map(l => l.length));
+        const height = lines.length;
+        
+        return {
+          type: "special",
+          name: value,
+          art: specialArt.trim(),
           width,
           height,
         };
