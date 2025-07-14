@@ -16,18 +16,193 @@ interface TerminalUIProps {
   onCommand?: (command: string) => void;
   className?: string;
   userId: string;
-  onResetPreferences?: () => void;
 }
 
-export function TerminalUI({ onCommand, className = "", userId, onResetPreferences }: TerminalUIProps) {
+interface OnboardingState {
+  isOnboarding: boolean;
+  currentStep: 'country' | 'continent' | 'destination' | 'complete';
+  answers: {
+    country?: string;
+    continent?: string;
+    destination?: string;
+  };
+}
+
+export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProps) {
   const [isBooted, setIsBooted] = useState(false);
   const [terminalHistory, setTerminalHistory] = useState<string[]>([]);
+  const [onboardingState, setOnboardingState] = useState<OnboardingState>({
+    isOnboarding: false,
+    currentStep: 'country',
+    answers: {}
+  });
   const terminalRef = useRef<HTMLDivElement>(null);
 
 
   // Handle boot completion
-  const handleBootComplete = () => {
+  const handleBootComplete = async () => {
     setIsBooted(true);
+    
+    // Check if user has preferences by querying the agent
+    await checkUserPreferences();
+  };
+  
+  // Check if user has preferences in Mastra memory
+  const checkUserPreferences = async () => {
+    addResponse("CHECKING USER PROFILE...");
+    
+    try {
+      const response = await fetch('/api/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: "Do I have geographic preferences set? Just answer yes or no.",
+          userId: userId,
+          threadId: 'geosys-terminal-thread'
+        })
+      });
+      
+      if (response.body) {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let aiResponse = '';
+        
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value);
+          aiResponse += chunk;
+        }
+        
+        // Check if preferences exist based on response
+        const hasPreferences = aiResponse.toLowerCase().includes('yes');
+        
+        if (!hasPreferences) {
+          addResponse("> ERROR: NO GEOGRAPHIC PREFERENCES FOUND");
+          addResponse("");
+          addResponse("INITIATING FIRST-TIME SETUP PROTOCOL...");
+          addResponse("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+          addResponse("");
+          addResponse("GEOGRAPHIC PREFERENCE CONFIGURATION");
+          addResponse("Please answer the following questions:");
+          addResponse("");
+          addResponse("[1/3] What is your favourite country?");
+          
+          setOnboardingState({
+            isOnboarding: true,
+            currentStep: 'country',
+            answers: {}
+          });
+        } else {
+          addResponse("> PROFILE LOADED SUCCESSFULLY");
+          addResponse("");
+          addResponse("Welcome back to GEOSYS v4.2.1");
+          addResponse("Type 'help' for available commands");
+        }
+      }
+    } catch (error) {
+      console.error('Error checking preferences:', error);
+      addResponse("> ERROR: UNABLE TO ACCESS MEMORY CORE");
+      addResponse("Proceeding without preferences...");
+    }
+  };
+  
+  // Handle onboarding input
+  const handleOnboardingInput = async (input: string) => {
+    const cleanInput = input.trim().toLowerCase();
+    
+    if (!cleanInput) {
+      addResponse("ERROR: Please enter a valid response");
+      return;
+    }
+    
+    // Store the answer
+    const updatedAnswers = { ...onboardingState.answers };
+    
+    switch (onboardingState.currentStep) {
+      case 'country':
+        updatedAnswers.country = cleanInput;
+        addResponse(`✓ STORED: Favourite country = ${capitalize(cleanInput)}`);
+        addResponse("");
+        addResponse("[2/3] What is your favourite continent?");
+        
+        setOnboardingState({
+          ...onboardingState,
+          currentStep: 'continent',
+          answers: updatedAnswers
+        });
+        break;
+        
+      case 'continent':
+        updatedAnswers.continent = cleanInput;
+        addResponse(`✓ STORED: Favourite continent = ${capitalize(cleanInput)}`);
+        addResponse("");
+        addResponse("[3/3] What is your dream destination?");
+        
+        setOnboardingState({
+          ...onboardingState,
+          currentStep: 'destination',
+          answers: updatedAnswers
+        });
+        break;
+        
+      case 'destination':
+        updatedAnswers.destination = cleanInput;
+        addResponse(`✓ STORED: Favourite destination = ${capitalize(cleanInput)}`);
+        addResponse("");
+        addResponse("PREFERENCE INITIALIZATION COMPLETE");
+        addResponse("STORING PREFERENCES IN MEMORY CORE...");
+        
+        // Send preferences to Mastra
+        await storePreferencesInMemory(updatedAnswers);
+        
+        // Complete onboarding
+        setOnboardingState({
+          isOnboarding: false,
+          currentStep: 'complete',
+          answers: updatedAnswers
+        });
+        
+        addResponse("> PREFERENCES STORED SUCCESSFULLY");
+        addResponse("");
+        addResponse("Welcome to GEOSYS v4.2.1 - Geographic Intelligence Terminal");
+        addResponse("Type 'help' for available commands");
+        break;
+    }
+  };
+  
+  // Store preferences in Mastra memory
+  const storePreferencesInMemory = async (answers: any) => {
+    try {
+      const response = await fetch('/api/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `My favourite country is ${answers.country}, my favourite continent is ${answers.continent}, and my favourite destination is ${answers.destination}. Please remember these preferences.`,
+          userId: userId,
+          threadId: 'geosys-terminal-thread'
+        })
+      });
+      
+      if (response.body) {
+        const reader = response.body.getReader();
+        // Consume the stream but don't display it
+        while (true) {
+          const { done } = await reader.read();
+          if (done) break;
+        }
+      }
+    } catch (error) {
+      console.error('Error storing preferences:', error);
+      addResponse("> WARNING: MEMORY STORAGE PARTIAL FAILURE");
+    }
+  };
+  
+  // Helper function to capitalize words
+  const capitalize = (str: string): string => {
+    return str.split(' ').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
   };
 
   // Handle command submission
@@ -37,6 +212,12 @@ export function TerminalUI({ onCommand, className = "", userId, onResetPreferenc
       const newHistory = [...prev, `> ${command}`];
       return newHistory;
     });
+    
+    // Handle onboarding input
+    if (onboardingState.isOnboarding) {
+      await handleOnboardingInput(command);
+      return;
+    }
     
     // Check for terminal commands (without preferences context)
     const commandResult = parseCommand(command);
@@ -49,8 +230,22 @@ export function TerminalUI({ onCommand, className = "", userId, onResetPreferenc
       }
       
       if (commandResult === "RESET_PREFERENCES") {
-        onResetPreferences?.();
-        addResponse("SYSTEM: Preferences reset. Returning to onboarding...");
+        addResponse("SYSTEM: Resetting preferences...");
+        addResponse("CLEARING MEMORY CORE...");
+        
+        // Reset to onboarding state
+        setOnboardingState({
+          isOnboarding: true,
+          currentStep: 'country',
+          answers: {}
+        });
+        
+        // Clear terminal and start onboarding
+        setTerminalHistory([]);
+        addResponse("GEOGRAPHIC PREFERENCE CONFIGURATION");
+        addResponse("Please answer the following questions:");
+        addResponse("");
+        addResponse("[1/3] What is your favourite country?");
         return;
       }
       
