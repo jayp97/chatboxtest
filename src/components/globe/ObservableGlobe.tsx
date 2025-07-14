@@ -93,9 +93,12 @@ export function ObservableGlobe({
     
     console.log('Creating Observable sphere geometry...');
     
-    // Create sphere with appropriate segments (Observable uses radius * 2.6)
-    const segments = Math.floor(radius * 2.6);
+    // Create smooth sphere with high segment count for perfect smoothness
+    const segments = 128; // High quality smooth sphere regardless of radius
     const geometry = new THREE.SphereGeometry(radius, segments, segments);
+    
+    // Ensure perfect smooth normals for the sphere
+    geometry.computeVertexNormals();
     
     // Apply Observable avertex() function to all vertices if 3D is enabled
     if (threedee && heightData) {
