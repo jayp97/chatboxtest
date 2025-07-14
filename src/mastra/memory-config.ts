@@ -29,8 +29,11 @@ export const agentMemory = new Memory({
 
 ## Personal Details
 - **Favourite Country**: 
+- **Favourite Country Coordinates**: 
 - **Favourite Continent**: 
+- **Favourite Continent Coordinates**: 
 - **Favourite Destination**: 
+- **Favourite Destination Coordinates**: 
 
 ## Conversation Context
 - **Current Topic**: 

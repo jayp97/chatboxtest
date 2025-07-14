@@ -10,6 +10,7 @@ import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Sphere, Text } from "@react-three/drei";
 import * as THREE from "three";
+import { vertex } from "@/utils/coordinate-conversion";
 
 export interface Location {
   id: string;
@@ -21,18 +22,18 @@ export interface Location {
 
 interface LocationPinsProps {
   locations: Location[];
+  globeRadius?: number; // Allow passing globe radius for proper scaling
 }
 
-function LocationPin({ location }: { location: Location }) {
+function LocationPin({ location, globeRadius = 3 }: { location: Location; globeRadius?: number }) {
   const pinRef = useRef<THREE.Mesh>(null);
   
-  // Convert lat/lng to 3D coordinates on sphere
-  const phi = (90 - location.lat) * (Math.PI / 180);
-  const theta = (location.lng + 180) * (Math.PI / 180);
+  // Convert lat/lng to 3D coordinates using existing vertex function
+  const globePosition = vertex([location.lng, location.lat], globeRadius);
   
-  const x = Math.sin(phi) * Math.cos(theta) * 1.05; // Slightly above sphere surface
-  const y = Math.cos(phi) * 1.05;
-  const z = Math.sin(phi) * Math.sin(theta) * 1.05;
+  // Position pin slightly above globe surface
+  const pinRadius = globeRadius + 0.1;
+  const pinPosition = vertex([location.lng, location.lat], pinRadius);
   
   // Pin colors based on type
   const colors = {
@@ -50,12 +51,18 @@ function LocationPin({ location }: { location: Location }) {
     }
   });
   
+  // Scale pin size based on globe radius for consistency
+  const pinSize = globeRadius * 0.01; // Relative to globe size
+  const glowSize = pinSize * 2;
+  const textSize = globeRadius * 0.02;
+  const textOffset = globeRadius * 0.02;
+  
   return (
-    <group position={[x, y, z]}>
+    <group position={[pinPosition.x, pinPosition.y, pinPosition.z]}>
       {/* Pin sphere */}
       <Sphere
         ref={pinRef}
-        args={[0.02, 16, 16]}
+        args={[pinSize, 16, 16]}
       >
         <meshBasicMaterial
           color={colors[location.type]}
@@ -66,7 +73,7 @@ function LocationPin({ location }: { location: Location }) {
       
       {/* Pin glow */}
       <Sphere
-        args={[0.04, 16, 16]}
+        args={[glowSize, 16, 16]}
       >
         <meshBasicMaterial
           color={colors[location.type]}
@@ -78,8 +85,8 @@ function LocationPin({ location }: { location: Location }) {
       {/* Location label (only for favourite locations) */}
       {location.type === "favourite" && (
         <Text
-          position={[0, 0.05, 0]}
-          fontSize={0.05}
+          position={[0, textOffset, 0]}
+          fontSize={textSize}
           color={colors[location.type]}
           anchorX="center"
           anchorY="middle"
@@ -91,11 +98,15 @@ function LocationPin({ location }: { location: Location }) {
   );
 }
 
-export function LocationPins({ locations }: LocationPinsProps) {
+export function LocationPins({ locations, globeRadius = 3 }: LocationPinsProps) {
   return (
     <group name="location-pins">
       {locations.map((location) => (
-        <LocationPin key={location.id} location={location} />
+        <LocationPin 
+          key={location.id} 
+          location={location} 
+          globeRadius={globeRadius}
+        />
       ))}
     </group>
   );

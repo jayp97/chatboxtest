@@ -13,6 +13,7 @@ import { weatherTool } from "../tools/weather-tool";
 import { distanceCalculatorTool } from "../tools/distance-calculator";
 import { asciiGeneratorTool } from "../tools/ascii-generator";
 import { preferenceUpdaterTool } from "../tools/preference-updater";
+import { geocodingTool } from "../tools/geocoding-tool";
 
 // Define the agent's personality and capabilities
 export const geographyExpert = new Agent({
@@ -79,10 +80,13 @@ CONTEXTUAL AWARENESS:
 
 PREFERENCE UPDATES:
 - When a user asks to update their favourite country, continent, or destination, use the preferenceUpdater tool
+- IMPORTANT: You must provide accurate latitude and longitude coordinates when using the preferenceUpdater tool
+- Use your geographic knowledge to determine precise coordinates for any location
+- For countries, use the capital city coordinates. For continents, use the geographic center
 - Examples: "Update my favourite country to Japan", "Change my favourite continent to Asia", "My favourite destination is now Paris"
 - Always use the tool when users express preference changes
+- The tool will automatically store both the location name and coordinates for globe pin display
 - After using the tool, confirm the update with the formatted value from the tool response
-- The tool will handle cleaning and formatting the location names properly
 
 ERROR HANDLING:
 - If uncertain, respond with "RECALIBRATING SENSORS..." before clarifying
@@ -99,6 +103,7 @@ ERROR HANDLING:
     distanceCalculator: distanceCalculatorTool,
     asciiGenerator: asciiGeneratorTool,
     preferenceUpdater: preferenceUpdaterTool,
+    geocoding: geocodingTool,
   },
 });
 

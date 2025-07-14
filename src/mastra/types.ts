@@ -8,6 +8,10 @@ export interface UserPreferences {
   favouriteCountry?: string;
   favouriteContinent?: string;
   favouriteDestination?: string;
+  // Coordinate data for globe pins
+  favouriteCountryCoords?: { lat: number; lng: number };
+  favouriteContinentCoords?: { lat: number; lng: number };
+  favouriteDestinationCoords?: { lat: number; lng: number };
 }
 
 // Geography query context

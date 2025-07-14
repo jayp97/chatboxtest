@@ -13,6 +13,7 @@ import { WorldGlobe } from "./WorldGlobe";
 import { GlobeControls } from "./GlobeControls";
 import { LocationPins } from "./LocationPins";
 import { StarField } from "./StarField";
+import { getUserLocationPins, type LocationCoordinate } from "@/utils/location-service";
 // import { Perf } from "@react-three/drei"; // Performance monitor (optional)
 
 interface GlobeContainerProps {
@@ -81,6 +82,7 @@ export function GlobeContainer({
 }: GlobeContainerProps) {
   const [webGLSupported, setWebGLSupported] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [userLocations, setUserLocations] = useState<LocationCoordinate[]>([]);
   
   // Check WebGL support
   useEffect(() => {
@@ -94,6 +96,26 @@ export function GlobeContainer({
     
     // Reduced loading time for wireframe system (no textures to load)
     const timer = setTimeout(() => setIsLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Fetch user location pins for favorite destinations
+  useEffect(() => {
+    const loadUserLocations = async () => {
+      try {
+        console.log('Fetching user location pins...');
+        const locations = await getUserLocationPins();
+        console.log('Loaded user locations:', locations);
+        setUserLocations(locations);
+      } catch (error) {
+        console.error('Failed to load user locations:', error);
+        // Gracefully continue without pins
+        setUserLocations([]);
+      }
+    };
+
+    // Delay location loading until after initial globe load
+    const timer = setTimeout(loadUserLocations, 1000);
     return () => clearTimeout(timer);
   }, []);
   
@@ -160,8 +182,8 @@ export function GlobeContainer({
             {/* Camera controls */}
             <GlobeControls />
             
-            {/* Location pins */}
-            <LocationPins locations={[]} />
+            {/* Location pins - user's favorite destinations */}
+            <LocationPins locations={userLocations} globeRadius={4} />
           </Canvas>
         </Suspense>
       </ErrorBoundary>
