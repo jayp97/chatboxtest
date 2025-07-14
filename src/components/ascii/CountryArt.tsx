@@ -7,7 +7,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { getCountryArt, CountryASCII } from "@/app/utils/ascii-library";
+import { getCountryArt, CountryASCII } from "@/utils/ascii-library";
 
 interface CountryArtProps {
   country: string;

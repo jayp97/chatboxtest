@@ -7,7 +7,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getWeatherArt, ASCIIAnimation } from "@/app/utils/ascii-library";
+import { getWeatherArt, ASCIIAnimation } from "@/utils/ascii-library";
 import { AnimationEngine } from "./AnimationEngine";
 
 interface WeatherArtProps {

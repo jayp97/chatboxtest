@@ -7,7 +7,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ASCIIAnimation, ASCIIFrame, ASCII_TRANSITIONS } from "@/app/utils/ascii-library";
+import { ASCIIAnimation, ASCIIFrame, ASCII_TRANSITIONS } from "@/utils/ascii-library";
 
 interface AnimationEngineProps {
   animation: ASCIIAnimation | null;

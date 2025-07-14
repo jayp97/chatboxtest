@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { TerminalUI } from './components/terminal/TerminalUI'
-import { OnboardingFlow } from './components/onboarding/OnboardingFlow'
+import { TerminalUI } from '@/components/terminal/TerminalUI'
+import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow'
 
 export default function Home() {
   const [isOnboarding, setIsOnboarding] = useState(true)

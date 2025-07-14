@@ -13,7 +13,7 @@ import {
   createBorder, 
   createAsciiTable,
   ASCII_SPECIAL 
-} from "@/app/utils/ascii-library";
+} from "@/utils/ascii-library";
 
 // Define the input schema
 const asciiInputSchema = z.object({

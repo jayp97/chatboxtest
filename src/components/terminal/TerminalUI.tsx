@@ -14,9 +14,15 @@ import { CommandLine } from "./CommandLine";
 interface TerminalUIProps {
   onCommand?: (command: string) => void;
   className?: string;
+  userPreferences?: {
+    favoriteCountry: string;
+    favoriteContinent: string;
+    favoriteDestination: string;
+  };
+  onResetPreferences?: () => void;
 }
 
-export function TerminalUI({ onCommand, className = "" }: TerminalUIProps) {
+export function TerminalUI({ onCommand, className = "", userPreferences, onResetPreferences }: TerminalUIProps) {
   const [isBooted, setIsBooted] = useState(false);
   const [terminalHistory, setTerminalHistory] = useState<string[]>([]);
   const terminalRef = useRef<HTMLDivElement>(null);
