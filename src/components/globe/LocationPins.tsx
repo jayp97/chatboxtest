@@ -87,12 +87,12 @@ function LocationPin({ location, globeRadius = 3 }: { location: Location; globeR
 export function LocationPins({ locations, globeRadius = 3 }: LocationPinsProps) {
   const groupRef = useRef<THREE.Group>(null);
   
-  // Log locations for debugging
+  // Rotate pins WITH the globe to keep them over their geographic locations
   useFrame((state, delta) => {
     if (groupRef.current) {
-      // The globe rotates around Y axis at delta * 0.05
-      // We need to match this rotation exactly
-      groupRef.current.rotation.y += delta * 0.05;
+      // Globe rotates at delta * 0.05 around Y axis
+      // Reverse direction to match globe rotation
+      groupRef.current.rotation.y -= delta * 0.05;
     }
   });
   
