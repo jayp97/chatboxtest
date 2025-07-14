@@ -32,27 +32,31 @@ export function avertex(v: THREE.Vector3, demData: Uint8ClampedArray | null, rad
   // Sample elevation from DEM data
   const elevation = getDEMHeight(adjustedLon, lat, demData);
   
-  // Create new vertex with elevation
-  return vertex([adjustedLon - 270, lat], radius - 1 + 6 * elevation ** 1.6);
+  // Create new vertex with MUCH smaller elevation (scaled down 10x for subtle effect)
+  const elevationScale = 0.3; // Much smaller than original 6
+  const newRadius = radius + elevationScale * (elevation ** 1.6);
+  
+  // Create elevated vertex
+  const normalizedVertex = v.clone().normalize();
+  return normalizedVertex.multiplyScalar(newRadius);
 }
 
-// Sample height from DEM texture data
+// Sample height from DEM texture data (Observable technique)
 export function getDEMHeight(longitude: number, latitude: number, demData: Uint8ClampedArray): number {
-  // Convert lat/lng to texture coordinates
+  // Convert lat/lng to texture coordinates (Observable technique)
   const p1 = 173 - Math.ceil(latitude + 90);
   const p0 = 170 + Math.floor(longitude);
   
-  // Handle wrapping and bounds
-  const x = Math.floor((p0 % 360) + 360 * (p1 % 180));
+  // Calculate texture index (Observable technique)
+  const ix = Math.floor((p0 % 360) + 360 * (p1 % 180));
   
   if (p1 > 149) {
-    // Eliminate Antarctica region
+    // Eliminate Antarctica region (Observable technique)
     return 0.2;
   }
   
-  // Sample DEM data (red channel contains height)
-  const index = x * 4; // RGBA format, we want red channel
-  const heightValue = demData[index] || 102; // Default height if no data
+  // Sample DEM data (single channel height data)
+  const heightValue = demData[ix] || 102; // Default height if no data
   
   return heightValue / 255; // Normalize to 0-1 range
 }

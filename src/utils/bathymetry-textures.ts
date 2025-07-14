@@ -68,14 +68,15 @@ async function loadTexture(path: string, name: string): Promise<THREE.Texture> {
         // Configure texture settings
         texture.wrapS = DEFAULT_CONFIG.wrapMode;
         texture.wrapT = DEFAULT_CONFIG.wrapMode;
-        texture.minFilter = THREE.LinearMipmapLinearFilter;
+        texture.minFilter = THREE.LinearFilter; // Simplified filtering to avoid mipmap issues
         texture.magFilter = THREE.LinearFilter;
-        texture.generateMipmaps = true;
+        texture.generateMipmaps = false; // Disable mipmaps to avoid WebGL errors
         texture.flipY = DEFAULT_CONFIG.flipY;
         
         // Special settings for alpha texture
         if (name === 'alpha') {
-          texture.format = THREE.LuminanceFormat;
+          // Keep default format for alpha textures to avoid WebGL errors
+          // texture.format = THREE.RedFormat; // Commented out to avoid format issues
         }
         
         console.log(`Loaded ${name} bathymetry texture: ${path}`);
