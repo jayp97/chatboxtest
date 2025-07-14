@@ -69,13 +69,15 @@ export const commands: Record<string, Command> = {
         return "RESET_PREFERENCES";
       }
       
-      if (["country", "continent", "destination"].includes(subcommand)) {
+      if (["country", "continent", "destination", "city"].includes(subcommand)) {
         if (args.length < 2) {
           return `ERROR: Please provide a new value. Example: /preferences ${subcommand} [value]`;
         }
         
         const newValue = args.slice(1).join(" ");
-        return `UPDATE_PREFERENCE:${subcommand}:${newValue}`;
+        // Map "city" to "destination" for consistency
+        const mappedField = subcommand === "city" ? "destination" : subcommand;
+        return `UPDATE_PREFERENCE:${mappedField}:${newValue}`;
       }
       
       return "ERROR: Unknown subcommand. Type '/preferences' to see available options.";

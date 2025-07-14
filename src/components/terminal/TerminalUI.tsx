@@ -274,8 +274,11 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
         const [, field, ...valueParts] = commandResult.split(":");
         const value = valueParts.join(":");
         
+        // Map "city" to "destination" for consistency
+        const mappedField = field === "city" ? "destination" : field;
+        
         // Send update request to agent
-        await processCommand(`Update my favourite ${field} to ${value}`);
+        await processCommand(`Update my favourite ${mappedField} to ${value}`);
         
         // Notify globe after preference update
         console.log("🌍 [TERMINAL] Preference update requested, will notify globe after confirmation");
@@ -297,11 +300,22 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
       return;
     }
     
-    // Pass command to parent handler or process via API
-    if (onCommand) {
-      onCommand(command);
+    // Check if user is trying to update city preference in natural language
+    const lowerCommand = command.toLowerCase();
+    if ((lowerCommand.includes("update") || lowerCommand.includes("change") || lowerCommand.includes("set")) && 
+        lowerCommand.includes("city") && 
+        (lowerCommand.includes("favourite") || lowerCommand.includes("favorite"))) {
+      // Modify the command to say "destination" instead of "city"
+      const modifiedCommand = command.replace(/\bcity\b/gi, "destination");
+      console.log("🌍 [TERMINAL] Mapping 'city' to 'destination' in command");
+      await processCommand(modifiedCommand);
     } else {
-      await processCommand(command);
+      // Pass command to parent handler or process via API normally
+      if (onCommand) {
+        onCommand(command);
+      } else {
+        await processCommand(command);
+      }
     }
   };
 
@@ -361,14 +375,23 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
       
       // Check if response indicates preferences were updated
       const lowerResponse = aiResponse.toLowerCase();
-      if (lowerResponse.includes("updated") && 
+      if ((lowerResponse.includes("updated") || lowerResponse.includes("saved") || lowerResponse.includes("noted") || lowerResponse.includes("remember")) && 
           (lowerResponse.includes("favourite") || lowerResponse.includes("favorite")) &&
           (lowerResponse.includes("country") || lowerResponse.includes("destination") || lowerResponse.includes("city"))) {
         console.log("🎯 [TERMINAL] Detected preference update in agent response");
         
+        // Extract what was updated for better logging
+        let updatedField = "preferences";
+        if (lowerResponse.includes("city") || lowerResponse.includes("destination")) {
+          updatedField = "destination/city";
+        } else if (lowerResponse.includes("country")) {
+          updatedField = "country";
+        }
+        
         // Notify globe of the update
         notifyPreferenceUpdate({
           source: 'agent-confirmation',
+          field: updatedField,
           message: aiResponse.substring(0, 200),
           timestamp: new Date().toISOString()
         });
