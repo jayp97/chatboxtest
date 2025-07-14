@@ -66,12 +66,16 @@ async function loadTexture(path: string, name: string): Promise<THREE.Texture> {
       path,
       (texture) => {
         // Configure texture settings
-        texture.wrapS = DEFAULT_CONFIG.wrapMode;
+        texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = DEFAULT_CONFIG.wrapMode;
         texture.minFilter = THREE.LinearFilter; // Simplified filtering to avoid mipmap issues
         texture.magFilter = THREE.LinearFilter;
         texture.generateMipmaps = false; // Disable mipmaps to avoid WebGL errors
         texture.flipY = DEFAULT_CONFIG.flipY;
+        
+        // Fix mirror effect by flipping texture horizontally
+        texture.repeat.x = -1;
+        texture.offset.x = 1;
         
         // Special settings for alpha texture
         if (name === 'alpha') {

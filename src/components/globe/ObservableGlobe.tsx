@@ -270,7 +270,7 @@ export function ObservableGlobe({
         geometry={sphereGeometry}
         material={sphereMaterial}
         position={[0, 0, 0]}
-        rotation={[Math.PI, 0, 0]} // Flip around X-axis so Northern Hemisphere is at top
+        rotation={[Math.PI, 0, 0]} // Flip X-axis so Northern Hemisphere is at top
         castShadow
         receiveShadow
       />
