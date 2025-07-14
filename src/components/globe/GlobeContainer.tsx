@@ -103,18 +103,21 @@ export function GlobeContainer({
   useEffect(() => {
     const loadUserLocations = async () => {
       try {
-        console.log('Fetching user location pins...');
+        console.log('🌍 [DEBUG] GlobeContainer - Starting to fetch user location pins...');
         const locations = await getUserLocationPins();
-        console.log('Loaded user locations:', locations);
+        console.log('📍 [DEBUG] GlobeContainer - Loaded user locations:', locations);
+        console.log(`🔢 [DEBUG] GlobeContainer - Setting ${locations.length} locations in state`);
         setUserLocations(locations);
+        console.log('✅ [DEBUG] GlobeContainer - Locations successfully set for globe rendering');
       } catch (error) {
-        console.error('Failed to load user locations:', error);
+        console.error('💥 [DEBUG] GlobeContainer - Failed to load user locations:', error);
         // Gracefully continue without pins
         setUserLocations([]);
       }
     };
 
     // Delay location loading until after initial globe load
+    console.log('⏱️ [DEBUG] GlobeContainer - Setting timer for location loading...');
     const timer = setTimeout(loadUserLocations, 1000);
     return () => clearTimeout(timer);
   }, []);
@@ -183,7 +186,14 @@ export function GlobeContainer({
             <GlobeControls />
             
             {/* Location pins - user's favorite destinations */}
-            <LocationPins locations={userLocations} globeRadius={4} />
+            <LocationPins 
+              locations={userLocations} 
+              globeRadius={4} 
+              ref={(ref) => {
+                console.log('📌 [DEBUG] GlobeContainer - LocationPins ref:', ref);
+                console.log('📊 [DEBUG] GlobeContainer - Passing locations to LocationPins:', userLocations);
+              }}
+            />
           </Canvas>
         </Suspense>
       </ErrorBoundary>

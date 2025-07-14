@@ -68,3 +68,7 @@ At the end of every session create a new file in the `docs/dev-logs` directory w
 ## MODEL Usage
 
 You must use the gpt-4.1 model
+
+## Other
+
+- Do not pnpm run dev yourself. Just prompt me at the end of your response.

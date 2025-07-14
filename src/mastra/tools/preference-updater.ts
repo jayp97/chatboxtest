@@ -43,6 +43,8 @@ export const preferenceUpdaterTool = createTool({
   execute: async ({ context }) => {
     const { preferenceType, value, latitude, longitude } = context;
     
+    console.log('🔧 [DEBUG] PreferenceUpdater - Called with:', { preferenceType, value, latitude, longitude });
+    
     // Clean and format the value
     let cleanedValue = value.trim();
     
@@ -68,7 +70,7 @@ export const preferenceUpdaterTool = createTool({
     
     const message = `Successfully updated ${preferenceType} preference to ${formattedValue} (coordinates: ${coordinatesFormatted})`;
     
-    return {
+    const result = {
       success: true,
       preferenceType,
       newValue: storedValue,
@@ -77,5 +79,9 @@ export const preferenceUpdaterTool = createTool({
       coordinatesFormatted,
       message
     };
+    
+    console.log('✅ [DEBUG] PreferenceUpdater - Returning result:', result);
+    
+    return result;
   }
 });
