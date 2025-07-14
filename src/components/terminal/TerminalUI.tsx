@@ -10,6 +10,7 @@ import { useState, useEffect, useRef } from "react";
 import { CRTEffects } from "./CRTEffects";
 import { BootSequence } from "./BootSequence";
 import { CommandLine } from "./CommandLine";
+import { LoadingIndicator } from "./LoadingIndicator";
 import { parseCommand } from "@/utils/terminal-commands";
 
 interface TerminalUIProps {
@@ -31,6 +32,7 @@ interface OnboardingState {
 export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProps) {
   const [isBooted, setIsBooted] = useState(false);
   const [terminalHistory, setTerminalHistory] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [onboardingState, setOnboardingState] = useState<OnboardingState>({
     isOnboarding: false,
     currentStep: 'country',
@@ -280,7 +282,8 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
   // Process command via streaming API
   const processCommand = async (command: string, isPreferencesQuery = false) => {
     try {
-
+      setIsLoading(true);
+      
       const response = await fetch('/api/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -299,6 +302,9 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let aiResponse = '';
+      
+      // Hide loading indicator once streaming starts
+      setIsLoading(false);
       
       // Add empty response to history for streaming
       setTerminalHistory(prev => [...prev, '']);
@@ -328,6 +334,7 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
       }
       
     } catch (error) {
+      setIsLoading(false);
       addResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
@@ -394,6 +401,7 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
                       {line}
                     </div>
                   ))}
+                  {isLoading && <LoadingIndicator />}
                 </div>
                 
                 {/* Command line input */}
