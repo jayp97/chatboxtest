@@ -10,7 +10,7 @@ import { preferenceEvents } from './preference-events';
  * to notify all listening components (like the globe)
  */
 export function notifyPreferenceUpdate(preferences?: any) {
-  console.log('📢 [DEBUG] Notifying preference update:', preferences);
+  // Notify all components of preference update
   
   // Emit the event
   preferenceEvents.emitPreferenceUpdate(preferences);

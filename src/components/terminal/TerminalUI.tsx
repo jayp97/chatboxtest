@@ -176,7 +176,6 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
         addResponse("Type '/help' for available commands");
         
         // Notify globe to update pins after onboarding completes
-        console.log("🌍 [TERMINAL] Onboarding complete, notifying globe to update pins");
         notifyPreferenceUpdate({
           source: 'onboarding-complete',
           preferences: updatedAnswers,
@@ -281,7 +280,6 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
         await processCommand(`Update my favourite ${mappedField} to ${value}`);
         
         // Notify globe after preference update
-        console.log("🌍 [TERMINAL] Preference update requested, will notify globe after confirmation");
         // We'll detect the actual update from the agent's response
         setTimeout(() => {
           notifyPreferenceUpdate({
@@ -307,7 +305,6 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
         (lowerCommand.includes("favourite") || lowerCommand.includes("favorite"))) {
       // Modify the command to say "destination" instead of "city"
       const modifiedCommand = command.replace(/\bcity\b/gi, "destination");
-      console.log("🌍 [TERMINAL] Mapping 'city' to 'destination' in command");
       await processCommand(modifiedCommand);
     } else {
       // Pass command to parent handler or process via API normally
@@ -370,7 +367,6 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
       if (isPreferencesQuery) {
         // The agent's response will contain the preferences
         // We'll display the raw response from the agent
-        console.log("Preferences query response:", aiResponse);
       }
       
       // Check if response indicates preferences were updated
@@ -378,7 +374,7 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
       if ((lowerResponse.includes("updated") || lowerResponse.includes("saved") || lowerResponse.includes("noted") || lowerResponse.includes("remember")) && 
           (lowerResponse.includes("favourite") || lowerResponse.includes("favorite")) &&
           (lowerResponse.includes("country") || lowerResponse.includes("destination") || lowerResponse.includes("city"))) {
-        console.log("🎯 [TERMINAL] Detected preference update in agent response");
+        // Preference update detected in agent response
         
         // Extract what was updated for better logging
         let updatedField = "preferences";

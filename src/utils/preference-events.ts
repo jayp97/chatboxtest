@@ -19,7 +19,7 @@ export class PreferenceEventEmitter extends EventTarget {
   }
 
   emitPreferenceUpdate(detail?: any) {
-    console.log('🔔 [DEBUG] Emitting preference update event:', detail);
+    // Emit preference update event to all listeners
     const event = new CustomEvent('preferenceUpdate', { detail });
     this.dispatchEvent(event);
   }

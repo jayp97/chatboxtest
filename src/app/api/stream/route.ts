@@ -66,9 +66,7 @@ export async function POST(req: Request) {
           Please update your working memory with these preferences and reference them naturally in responses.`
         : "";
 
-      console.log("Executing agent with message:", message);
-      console.log("User ID:", actualUserId);
-      console.log("Thread ID:", actualThreadId);
+      // Agent execution initiated
 
       // Execute the agent with streaming
       const response = await geographyExpert.stream(

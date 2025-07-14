@@ -43,7 +43,7 @@ export const preferenceUpdaterTool = createTool({
   execute: async ({ context }) => {
     const { preferenceType, value, latitude, longitude } = context;
     
-    console.log('🔧 [DEBUG] PreferenceUpdater - Called with:', { preferenceType, value, latitude, longitude });
+    // Process preference update request
     
     // Clean and format the value
     let cleanedValue = value.trim();
@@ -80,7 +80,7 @@ export const preferenceUpdaterTool = createTool({
       message
     };
     
-    console.log('✅ [DEBUG] PreferenceUpdater - Returning result:', result);
+    // Preference update completed successfully
     
     return result;
   }

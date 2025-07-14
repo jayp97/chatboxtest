@@ -27,14 +27,13 @@ export const updateUserPreferencesTool = createTool({
   description: "Update user's geographic preferences and notify UI components",
   inputSchema: updatePreferencesSchema,
   execute: async ({ input }) => {
-    console.log("🌍 [TOOL] Updating user preferences:", input);
+    // Update user preferences
     
     try {
       // Store preferences in memory (this would be done by the agent)
       // For now, we just emit the update event
       
       // Emit preference update event to notify the globe
-      console.log("📢 [TOOL] Emitting preference update event");
       notifyPreferenceUpdate({
         preferences: input,
         timestamp: new Date().toISOString(),
