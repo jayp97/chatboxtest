@@ -8,10 +8,10 @@ This is a Next.js 15 application built for a coding assessment to create an enha
 
 ## Essential Commands
 
-- `npm run dev` - Start development server
-- `npm run build` - Build production version
-- `npm start` - Start production server
-- `npm run lint` - Run ESLint checks
+- `pnpm run dev` - Start development server
+- `pnpm run build` - Build production version
+- `pnpm start` - Start production server
+- `pnpm run lint` - Run ESLint checks
 
 ## Architecture
 
@@ -45,7 +45,7 @@ Copy `.env.example` to `.env` and add OpenAI API keys:
 
 - Node.js version: 22.15.0 (use `nvm use`)
 - TypeScript strict mode is enabled
-- Use OpenAI npm packages for API integration
+- Use OpenAI packages for API integration (install with pnpm)
 - No database required (mock data is acceptable)
 - Maintain Edge runtime for the streaming endpoint
 
