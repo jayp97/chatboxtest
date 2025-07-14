@@ -135,6 +135,7 @@ export function ObservableGlobe({
         wireframe: mode === 'wireframe',
         transparent: false,
         opacity: 1.0,
+        side: THREE.FrontSide,
       });
     }
     
@@ -145,6 +146,7 @@ export function ObservableGlobe({
         wireframe: mode === 'wireframe',
         transparent: false, // Make solid for fallback
         opacity: 1.0,
+        side: THREE.FrontSide,
       });
     }
     
@@ -155,6 +157,7 @@ export function ObservableGlobe({
           map: bathymetryTextures.diffuse,
           transparent: false,
           opacity: 1.0,
+          side: THREE.FrontSide,
         });
         
         // Add alpha map for transparency if available
@@ -173,6 +176,7 @@ export function ObservableGlobe({
           wireframe: true,
           transparent: false,
           opacity: 1.0,
+          side: THREE.FrontSide,
         });
       
       case 'hybrid':
@@ -181,6 +185,7 @@ export function ObservableGlobe({
           map: bathymetryTextures.diffuse,
           transparent: false,
           opacity: 1.0,
+          side: THREE.FrontSide,
         });
         
         if (bathymetryTextures.alpha) {
@@ -196,6 +201,7 @@ export function ObservableGlobe({
           map: bathymetryTextures.diffuse,
           transparent: false,
           opacity: 1.0,
+          side: THREE.FrontSide,
         });
     }
   }, [bathymetryTextures, mode, debugMode]);
@@ -264,7 +270,7 @@ export function ObservableGlobe({
         geometry={sphereGeometry}
         material={sphereMaterial}
         position={[0, 0, 0]}
-        rotation={[Math.PI, Math.PI, 0]} // Flip upright and correct mirror effect
+        rotation={[0, 0, 0]} // Normal orientation with corrected material side
         castShadow
         receiveShadow
       />
