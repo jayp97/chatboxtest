@@ -4,6 +4,7 @@
 @import "../styles/terminal.css";
 @import "../styles/crt-effects.css";
 @import "../styles/animations.css";
+@import "../styles/retro-background.css";
 
 :root {
   --background: #ffffff;

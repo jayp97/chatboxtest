@@ -132,9 +132,19 @@ src/
 
 ### Phase 3: Terminal UI Implementation
 
+#### Step 3.0: Retro Background System (NEW)
+- [x] Create `RetroBackground.tsx` component
+- [x] Implement animated perspective grid (Tron-style)
+- [x] Add floating geometric shapes with neon trails
+- [x] Create particle system with glow effects
+- [x] Implement gradient overlays (cyan/magenta/purple)
+- [x] Add synchronized scanline effects
+- [x] Create parallax depth layers
+- [x] Implement performance-optimized canvas rendering
+
 #### Step 3.1: Base Terminal Structure
 - [x] Create `TerminalUI.tsx` main container
-- [x] Implement black background with phosphor green (#00ff00) text
+- [x] Implement terminal with transparent background
 - [x] Set up fixed-width terminal dimensions
 - [x] Add terminal frame with title bar "GEOSYS v4.2.1"
 

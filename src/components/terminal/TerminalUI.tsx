@@ -355,26 +355,26 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
   }, [terminalHistory]);
 
   return (
-    <div className={`relative w-full h-full bg-black font-mono overflow-hidden ${className}`}>
+    <div className={`relative w-full h-full font-mono overflow-hidden ${className}`}>
       {/* CRT Effects overlay */}
       <CRTEffects />
       
       {/* Terminal container */}
       <div className="relative w-full h-full p-5 flex items-center justify-center">
-        {/* Terminal frame */}
-        <div className="w-full max-w-[900px] h-[600px] bg-[#0a0a0a] border-2 border-gray-800 rounded-lg overflow-hidden terminal-glow">
+        {/* Terminal frame with semi-transparent background */}
+        <div className="w-full max-w-[900px] h-[600px] bg-black/80 backdrop-blur-sm border-2 border-cyan-500/30 rounded-lg overflow-hidden terminal-glow shadow-2xl shadow-cyan-500/20">
           {/* Title bar */}
-          <div className="h-8 bg-[#1a1a1a] border-b border-gray-800 flex items-center justify-between px-3 py-2 select-none">
+          <div className="h-8 bg-black/60 backdrop-blur border-b border-cyan-500/20 flex items-center justify-between px-3 py-2 select-none">
             <div className="flex gap-2">
-              <span className="w-3 h-3 bg-red-500 rounded-full"></span>
-              <span className="w-3 h-3 bg-yellow-500 rounded-full"></span>
-              <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+              <span className="w-3 h-3 bg-red-500 rounded-full shadow-[0_0_10px_rgba(255,0,0,0.8)]"></span>
+              <span className="w-3 h-3 bg-yellow-500 rounded-full shadow-[0_0_10px_rgba(255,255,0,0.8)]"></span>
+              <span className="w-3 h-3 bg-green-500 rounded-full shadow-[0_0_10px_rgba(0,255,0,0.8)]"></span>
             </div>
-            <div className="text-green-400 text-sm font-bold tracking-wider phosphor-glow">
+            <div className="text-green-400 text-sm font-bold tracking-wider phosphor-glow neon-text">
               GEOSYS v4.2.1 - Geographic Intelligence Terminal
             </div>
             <div className="flex items-center gap-2 text-green-400 text-xs">
-              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(0,255,0,0.8)]"></span>
+              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_15px_rgba(0,255,0,1)]"></span>
               ONLINE
             </div>
           </div>
@@ -382,7 +382,7 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
           {/* Terminal screen */}
           <div 
             ref={terminalRef}
-            className="terminal-screen h-[calc(100%-32px)] bg-black text-green-400 px-5 py-6 overflow-y-auto text-sm leading-relaxed phosphor-glow"
+            className="terminal-screen h-[calc(100%-32px)] bg-black/40 text-green-400 px-5 py-6 overflow-y-auto text-sm leading-relaxed phosphor-glow"
           >
             {/* Boot sequence or main content */}
             {!isBooted ? (

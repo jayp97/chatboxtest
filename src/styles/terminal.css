@@ -344,6 +344,14 @@
   animation-delay: 200ms;
 }
 
+/* Terminal container glow effect - static, no animation */
+.terminal-glow {
+  box-shadow: 
+    0 0 30px rgba(0, 255, 255, 0.3),
+    0 0 60px rgba(0, 255, 255, 0.15),
+    inset 0 0 15px rgba(0, 255, 255, 0.05);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .terminal-container {
