@@ -100,15 +100,6 @@ export async function POST(req: Request) {
               }
             }
             
-            // If a preference update was detected, send a special marker
-            if (preferenceUpdate) {
-              console.log("Sending preference update marker to frontend");
-              const updateMarker = `\n__PREFERENCE_UPDATE__${JSON.stringify(preferenceUpdate)}__END_UPDATE__\n`;
-              controller.enqueue(encoder.encode(updateMarker));
-            } else {
-              console.log("No preference update detected at stream end");
-            }
-            
             // Close the stream when done
             controller.close();
           } catch {
