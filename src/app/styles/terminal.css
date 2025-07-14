@@ -1,0 +1,36 @@
+/**
+ * terminal.css
+ * Core terminal styling
+ * Defines the retro terminal appearance
+ */
+
+.terminal-container {
+  background-color: #000000;
+  color: #00ff00;
+  font-family: 'Courier New', monospace;
+  padding: 20px;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.command-line {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.prompt {
+  color: #00ff00;
+  margin-right: 5px;
+}
+
+.command-input {
+  background: transparent;
+  border: none;
+  color: #00ff00;
+  font-family: inherit;
+  font-size: inherit;
+  outline: none;
+  flex: 1;
+}

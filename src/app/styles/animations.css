@@ -1,0 +1,50 @@
+/**
+ * animations.css
+ * Animation definitions
+ * Typewriter, glitch, and other effects
+ */
+
+/* Typewriter effect */
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+.typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typewriter 1s steps(40, end);
+}
+
+.cursor {
+  animation: blink 1s infinite;
+}
+
+/* Glitch effect */
+@keyframes glitch {
+  0% {
+    transform: translate(0);
+    opacity: 1;
+  }
+  20% {
+    transform: translate(-1px, 1px);
+    opacity: 0.8;
+  }
+  40% {
+    transform: translate(1px, -1px);
+    opacity: 0.8;
+  }
+  60% {
+    transform: translate(0);
+    opacity: 1;
+  }
+}
+
+.glitch {
+  animation: glitch 0.3s ease-in-out;
+}

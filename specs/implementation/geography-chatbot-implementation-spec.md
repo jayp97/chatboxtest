@@ -13,25 +13,34 @@ This specification outlines the complete implementation process for transforming
 ### Phase 1: Foundation and Environment Setup
 
 #### Step 1.1: Project Initialisation
-- Verify Next.js 15 App Router configuration
-- Ensure TypeScript strict mode is enabled
-- Confirm Node.js v22.15.0 via nvm
-- Set up `.env` file with OPENAI_API_KEY placeholder
+- [x] Verify Next.js 15 App Router configuration
+- [x] Ensure TypeScript strict mode is enabled
+- [x] Confirm Node.js v22.15.0 via nvm
+- [x] Set up `.env` file with OPENAI_API_KEY placeholder
 
 #### Step 1.2: Core Dependencies Installation
+- [x] Install Mastra core packages
+- [x] Install AI SDK and utilities
+- [x] Install UI libraries (framer-motion, canvas-confetti)
+- [x] Install type definitions
+
 ```bash
-npm install @mastra/core@latest @mastra/memory@latest @mastra/libsql@latest @ai-sdk/openai@latest
-npm install zod ai framer-motion canvas-confetti
-npm install -D @types/canvas-confetti
+pnpm install @mastra/core@latest @mastra/memory@latest @mastra/libsql@latest @ai-sdk/openai@latest
+pnpm install zod ai framer-motion canvas-confetti
+pnpm install -D @types/canvas-confetti
 ```
 
 #### Step 1.3: Next.js Configuration
-- Update `next.config.ts` to include `serverExternalPackages: ["@mastra/*"]`
-- Configure for Edge runtime compatibility
-- Set up proper TypeScript paths in `tsconfig.json`
-- Add `.mastra` to `.gitignore`
+- [x] Update `next.config.ts` to include `serverExternalPackages: ["@mastra/*"]`
+- [x] Configure for Edge runtime compatibility
+- [x] Set up proper TypeScript paths in `tsconfig.json`
+- [x] Add `.mastra` to `.gitignore`
 
 #### Step 1.4: Directory Structure Creation
+- [x] Create src/app/components directory structure
+- [x] Create src/app/styles directory
+- [x] Create src/app/utils directory
+- [x] Create src/mastra directory structure
 ```
 src/
 ├── app/
@@ -77,27 +86,27 @@ src/
 ### Phase 2: Mastra Agent Implementation
 
 #### Step 2.1: Mastra Core Configuration
-- Create `src/mastra/index.ts` with Mastra instance
-- Configure LibSQLStore for local database storage
-- Set up memory persistence configuration
-- Initialise agent registry
+- [x] Create `src/mastra/index.ts` with Mastra instance
+- [x] Configure LibSQLStore for local database storage
+- [x] Set up memory persistence configuration
+- [x] Initialise agent registry
 
 #### Step 2.2: Geography Expert Agent Creation
-- Implement `geography-expert.ts` with personality traits
-- Configure GPT-4.1 model via OpenAI
-- Add British English language instructions
-- Set up conversation memory with context retention
-- Configure streaming capabilities
+- [ ] Implement `geography-expert.ts` with personality traits
+- [ ] Configure GPT-4.1 model via OpenAI
+- [ ] Add British English language instructions
+- [ ] Set up conversation memory with context retention
+- [ ] Configure streaming capabilities
 
 #### Step 2.3: Tool Development
 1. **Country Information Tool**
-   - REST Countries API integration
-   - Capital, population, languages data
-   - Fun facts generation
-   - Error handling for unknown countries
+   - [ ] REST Countries API integration
+   - [ ] Capital, population, languages data
+   - [ ] Fun facts generation
+   - [ ] Error handling for unknown countries
 
 2. **Weather Tool**
-   - Open-Meteo API integration (no key required)
+   - [ ] Open-Meteo API integration (no key required)
    - Current conditions fetching
    - Weather code to description mapping
    - Location geocoding

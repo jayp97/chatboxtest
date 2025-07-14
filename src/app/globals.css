@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Custom styles for GEOSYS Terminal */
+@import "./styles/terminal.css";
+@import "./styles/crt-effects.css";
+@import "./styles/animations.css";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
