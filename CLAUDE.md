@@ -51,7 +51,7 @@ Copy `.env.example` to `.env` and add OpenAI API keys:
 
 ## Language
 
-Use British English throughout and ensure that all code is clearly and professionally commented.
+Use British English throughout all files, specs and documentation, and ensure that all code is clearly and professionally commented.
 
 ## Audio alert when tasks are complete
 
