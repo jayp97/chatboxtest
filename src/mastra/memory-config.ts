@@ -20,7 +20,7 @@ const memoryStore = process.env.POSTGRES_URL
 // Configure memory system with semantic search and context retention
 export const agentMemory = new Memory({
   storage: memoryStore,
-
+  
   // Memory configuration options
   options: {
     lastMessages: 10, // Keep last 10 messages in context

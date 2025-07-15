@@ -27,12 +27,17 @@ export interface UserPreferences {
  */
 export async function fetchUserPreferences(): Promise<UserPreferences | null> {
   try {
-    // Get userId from localStorage (matches pattern in page.tsx)
-    const userId = localStorage.getItem("geosys-user-id");
-    console.log("🔍 [DEBUG] Location Service - UserId:", userId);
+    // Get userId and threadId from localStorage (matches pattern in page.tsx)
+    const env = process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
+    const userKey = `geosys-user-id-${env}`;
+    const threadKey = `geosys-thread-id-${env}`;
     
-    if (!userId) {
-      console.log("❌ [DEBUG] No user ID found in localStorage");
+    const userId = localStorage.getItem(userKey);
+    const threadId = localStorage.getItem(threadKey);
+    console.log("🔍 [DEBUG] Location Service - UserId:", userId, "ThreadId:", threadId);
+    
+    if (!userId || !threadId) {
+      console.log("❌ [DEBUG] No user ID or thread ID found in localStorage");
       return null;
     }
 
@@ -45,7 +50,7 @@ export async function fetchUserPreferences(): Promise<UserPreferences | null> {
         message:
           "Please provide my current preferences with their exact geographic coordinates. Format the response as JSON with these exact keys: favouriteCountry, favouriteContinent, favouriteDestination, favouriteCountryCoords (as array [lat, lng]), favouriteContinentCoords (as array [lat, lng]), favouriteDestinationCoords (as array [lat, lng]). You MUST include the coordinate arrays for any preference that is set. Use your geographic knowledge to provide accurate coordinates.",
         userId: userId,
-        threadId: "geosys-terminal-thread",
+        threadId: threadId,
       }),
     });
 

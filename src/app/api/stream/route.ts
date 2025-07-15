@@ -49,10 +49,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Generate thread and user IDs if not provided
-    // Use consistent thread ID for session persistence
-    const actualThreadId = threadId || `geosys-terminal-thread`;
-    const actualUserId = userId || `geosys-user-${Date.now()}`;
+    // Use provided IDs or fallback to defaults
+    // IMPORTANT: These should be provided by the client to maintain consistency
+    const actualThreadId = threadId || `geosys-terminal-thread-default`;
+    const actualUserId = userId || `geosys-user-default`;
 
     try {
       

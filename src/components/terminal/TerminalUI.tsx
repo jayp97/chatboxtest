@@ -19,6 +19,7 @@ interface TerminalUIProps {
   onCommand?: (command: string) => void;
   className?: string;
   userId: string;
+  threadId: string;
 }
 
 interface OnboardingState {
@@ -31,7 +32,7 @@ interface OnboardingState {
   };
 }
 
-export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProps) {
+export function TerminalUI({ onCommand, className = "", userId, threadId }: TerminalUIProps) {
   const [isBooted, setIsBooted] = useState(false);
   const [terminalHistory, setTerminalHistory] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -65,7 +66,7 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
         body: JSON.stringify({
           message: "Do I have geographic preferences set? Just answer yes or no.",
           userId: userId,
-          threadId: 'geosys-terminal-thread'
+          threadId: threadId
         })
       });
       
@@ -213,7 +214,7 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
         body: JSON.stringify({
           message: `My favourite country is ${answers.country}, my favourite continent is ${answers.continent}, and my favourite destination is ${answers.destination}. Please remember these preferences.`,
           userId: userId,
-          threadId: 'geosys-terminal-thread'
+          threadId: threadId
         })
       });
       
@@ -351,7 +352,7 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
         body: JSON.stringify({ 
           message: command,
           userId: userId,
-          threadId: 'geosys-terminal-thread'
+          threadId: threadId
         })
       });
 
