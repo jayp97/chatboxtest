@@ -151,7 +151,7 @@ export async function loadCoastlines(): Promise<MeshData> {
   try {
     const topology = await loadTopoJSON(WORLD_ATLAS_URLS.coastlines50m);
     return generateMesh(topology, topology.objects.coastlines);
-  } catch (error) {
+  } catch {
     // Fall back to land boundaries
     return loadLandBoundaries('medium');
   }
@@ -178,7 +178,7 @@ export async function loadWorldAtlasData(resolution: 'high' | 'medium' | 'low' =
     
     return result;
     
-  } catch (error) {
+  } catch {
     return getFallbackWorldData();
   }
 }
@@ -203,7 +203,7 @@ export function generateFeatures(topology: TopoJSONTopology, objectName: string)
     } else {
       return [featureCollection as TopoJSONFeature];
     }
-  } catch (error) {
+  } catch {
     return [];
   }
 }

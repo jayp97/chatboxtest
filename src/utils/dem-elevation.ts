@@ -53,7 +53,8 @@ export async function loadDEMData(config: Partial<ElevationConfig> = {}): Promis
       loader.load(
         finalConfig.demPath,
         resolve,
-        (progress) => {
+        () => {
+          // Progress callback - no action needed
         },
         reject
       );

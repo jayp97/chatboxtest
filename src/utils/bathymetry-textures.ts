@@ -85,8 +85,8 @@ async function loadTexture(path: string, name: string): Promise<THREE.Texture> {
         
         resolve(texture);
       },
-      (progress) => {
-        const percent = (progress.loaded / progress.total * 100).toFixed(1);
+      () => {
+        // Progress callback - no action needed
       },
       (error) => {
         reject(new Error(`Failed to load ${name} texture: ${error instanceof Error ? error.message : 'Unknown error'}`));
@@ -288,7 +288,8 @@ export function createFallbackBathymetryMaterial(
 export async function preloadBathymetryTextures(): Promise<void> {
   try {
     await loadBathymetryTextures();
-  } catch (error) {
+  } catch {
+    // Error handling - no action needed
   }
 }
 

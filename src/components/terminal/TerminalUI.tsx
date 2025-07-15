@@ -246,7 +246,7 @@ export function TerminalUI({ onCommand, className = "", userId, threadId }: Term
                 
                 // Store in localStorage
                 const { storeUserPreferences } = await import('@/utils/preference-storage');
-                const updates: Record<string, any> = {};
+                const updates: Record<string, string | [number, number]> = {};
                 
                 if (prefType.toLowerCase() === 'country') {
                   updates.favouriteCountry = prefValue.trim();
@@ -445,7 +445,7 @@ export function TerminalUI({ onCommand, className = "", userId, threadId }: Term
           
           // Store in localStorage
           const { storeUserPreferences } = await import('@/utils/preference-storage');
-          const updates: Record<string, any> = {};
+          const updates: Record<string, string | [number, number]> = {};
           
           if (prefType.toLowerCase() === 'country') {
             updates.favouriteCountry = prefValue.trim();

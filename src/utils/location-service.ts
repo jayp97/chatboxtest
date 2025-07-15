@@ -153,7 +153,7 @@ export async function getUserLocationPins(): Promise<LocationCoordinate[]> {
     const locations = convertPreferencesToLocations(preferences);
     
     return locations;
-  } catch (error) {
+  } catch {
     return [];
   }
 }

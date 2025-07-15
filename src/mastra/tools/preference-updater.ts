@@ -76,7 +76,7 @@ export const preferenceUpdaterTool = createTool({
     
     // Store in our preference cache
     const userId = "geosys-user-default"; // TODO: Get from context
-    const updates: Record<string, any> = {};
+    const updates: Record<string, string | [number, number]> = {};
     
     if (preferenceType === 'country') {
       updates.favouriteCountry = formattedValue;
