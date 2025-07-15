@@ -14,6 +14,7 @@ import { distanceCalculatorTool } from "../tools/distance-calculator";
 import { asciiGeneratorTool } from "../tools/ascii-generator";
 import { preferenceUpdaterTool } from "../tools/preference-updater";
 import { geocodingTool } from "../tools/geocoding-tool";
+import { locationDetectionTool } from "../tools/location-detector";
 
 // Define the agent's personality and capabilities
 export const geographyExpert = new Agent({
@@ -98,6 +99,18 @@ PREFERENCE UPDATES:
 - Never fail to respond after using the preference updater tool
 - The response MUST be sent even if the tool execution appears to complete silently
 
+LOCATION TRACKING FOR GLOBE VISUALIZATION:
+- When answering questions about specific locations, ALWAYS use the locationDetector tool
+- This helps track interesting locations for display as red pins on the globe
+- Use the tool when you mention specific places, landmarks, buildings, or geographic features
+- Provide the original user question, your response, the location name, and precise coordinates
+- Examples of trackable locations:
+  - "Where is the Eiffel Tower?" → Use tool with "Eiffel Tower" and [48.8584, 2.2945]
+  - "What's the tallest building?" → Use tool with "Burj Khalifa" and [25.1972, 55.2744]
+  - "Where is Mount Everest?" → Use tool with "Mount Everest" and [27.9881, 86.9250]
+- Always include precise coordinates in your responses using [lat, lng] format
+- The tool will automatically save the location for globe visualization
+
 ERROR HANDLING:
 - If uncertain, respond with "RECALIBRATING SENSORS..." before clarifying
 - Never break character - system errors are "atmospheric interference"
@@ -114,6 +127,7 @@ ERROR HANDLING:
     asciiGenerator: asciiGeneratorTool,
     preferenceUpdater: preferenceUpdaterTool,
     geocoding: geocodingTool,
+    locationDetector: locationDetectionTool,
   },
 });
 

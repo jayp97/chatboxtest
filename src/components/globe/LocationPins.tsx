@@ -16,7 +16,12 @@ export interface Location {
   name: string;
   lat: number;
   lng: number;
-  type: "favourite" | "recent" | "current" | "historical";
+  type: "favourite" | "recent" | "current" | "historical" | "query";
+  metadata?: {
+    question?: string;
+    response?: string;
+    timestamp?: Date;
+  };
 }
 
 interface LocationPinsProps {
@@ -40,12 +45,13 @@ function LocationPin({ location, globeRadius = 3 }: { location: Location; globeR
     favourite: "#ffd700", // Gold
     recent: "#00ff00",    // Green
     current: "#ff00ff",   // Magenta
-    historical: "#888888" // Gray
+    historical: "#888888", // Gray
+    query: "#ff0000"      // Red
   };
   
-  // Animate pulsing for favourite locations
+  // Animate pulsing for favourite and query locations
   useFrame((state) => {
-    if (meshRef.current && location.type === "favourite") {
+    if (meshRef.current && (location.type === "favourite" || location.type === "query")) {
       const scale = 1 + Math.sin(state.clock.elapsedTime * 3) * 0.2;
       meshRef.current.scale.setScalar(scale);
     }

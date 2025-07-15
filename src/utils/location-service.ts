@@ -2,14 +2,22 @@
  * location-service.ts
  * Service for fetching user preferences with coordinates from Mastra memory
  * Works with AI-powered geocoding instead of hardcoded lookups
+ * Also handles location query pins for tracking user's geographic interests
  */
+
+import { getLatestLocationQuery } from './location-query-storage';
 
 export interface LocationCoordinate {
   id: string;
   name: string;
   lat: number;
   lng: number;
-  type: 'favourite' | 'recent' | 'current' | 'historical';
+  type: 'favourite' | 'recent' | 'current' | 'historical' | 'query';
+  metadata?: {
+    question?: string;
+    response?: string;
+    timestamp?: Date;
+  };
 }
 
 export interface UserPreferences {
@@ -140,20 +148,59 @@ export function convertPreferencesToLocations(
 }
 
 /**
- * Get user location pins for the globe
+ * Convert the latest location query to location coordinates for globe display
+ * Returns only the most recent query as a single red pin
  */
-export async function getUserLocationPins(): Promise<LocationCoordinate[]> {
-  
+export function convertQueriesToLocations(userId: string): LocationCoordinate[] {
   try {
-    const preferences = await fetchUserPreferences();
-    if (!preferences) {
+    const latestQuery = getLatestLocationQuery(userId);
+    
+    if (!latestQuery) {
       return [];
     }
-
-    const locations = convertPreferencesToLocations(preferences);
     
-    return locations;
-  } catch {
+    return [{
+      id: latestQuery.id,
+      name: latestQuery.locationName,
+      lat: latestQuery.coordinates.lat,
+      lng: latestQuery.coordinates.lng,
+      type: 'query' as const,
+      metadata: {
+        question: latestQuery.question,
+        response: latestQuery.response,
+        timestamp: latestQuery.timestamp
+      }
+    }];
+  } catch (error) {
+    console.error('[LocationService] Error converting queries to locations:', error);
+    return [];
+  }
+}
+
+/**
+ * Get user location pins for the globe (including preferences and queries)
+ */
+export async function getUserLocationPins(): Promise<LocationCoordinate[]> {
+  try {
+    const preferences = await fetchUserPreferences();
+    const preferenceLocations = preferences ? convertPreferencesToLocations(preferences) : [];
+    
+    // Get userId from localStorage
+    const env = process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
+    const userKey = `geosys-user-id-${env}`;
+    const userId = localStorage.getItem(userKey);
+    
+    let queryLocations: LocationCoordinate[] = [];
+    if (userId) {
+      queryLocations = convertQueriesToLocations(userId);
+    }
+    
+    // Combine preference locations and query locations
+    const allLocations = [...preferenceLocations, ...queryLocations];
+    
+    return allLocations;
+  } catch (error) {
+    console.error('[LocationService] Error getting user location pins:', error);
     return [];
   }
 }

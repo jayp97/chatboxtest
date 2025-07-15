@@ -286,6 +286,31 @@ export function TerminalUI({ onCommand, className = "", userId, threadId }: Term
     ).join(' ');
   };
 
+  // Handle location data from API stream
+  const handleLocationData = async (locationData: {
+    id: string;
+    question: string;
+    response: string;
+    locationName: string;
+    coordinates: { lat: number; lng: number };
+    timestamp: Date;
+    threadId: string;
+    userId: string;
+  }) => {
+    try {
+      // Store location query in localStorage
+      const { storeLocationQuery } = await import('@/utils/location-query-storage');
+      storeLocationQuery(locationData);
+      
+      // Notify globe to update pins
+      notifyPreferenceUpdate();
+      
+      console.log(`[Terminal] Stored location query: ${locationData.locationName}`);
+    } catch (error) {
+      console.error('Error handling location data:', error);
+    }
+  };
+
   // Handle command submission
   const handleCommand = async (command: string) => {
     // Prevent commands while loading
@@ -417,7 +442,24 @@ export function TerminalUI({ onCommand, className = "", userId, threadId }: Term
         }
         
         const chunk = decoder.decode(value);
-        aiResponse += chunk;
+        
+        // Check if chunk contains location data
+        if (chunk.includes('__LOCATION_DATA__:')) {
+          const locationDataMatch = chunk.match(/__LOCATION_DATA__:(.*?)(?:\n|$)/);
+          if (locationDataMatch) {
+            try {
+              const locationData = JSON.parse(locationDataMatch[1]);
+              await handleLocationData(locationData);
+            } catch (error) {
+              console.error('Error parsing location data:', error);
+            }
+          }
+          // Remove location data from displayed response
+          const cleanChunk = chunk.replace(/__LOCATION_DATA__:.*?(?:\n|$)/, '');
+          aiResponse += cleanChunk;
+        } else {
+          aiResponse += chunk;
+        }
         
         // Update the last (empty) response with streamed content
         setTerminalHistory(prev => {
