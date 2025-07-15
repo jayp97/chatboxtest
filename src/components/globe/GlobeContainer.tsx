@@ -146,13 +146,13 @@ export function GlobeContainer({
         "🎯 [DEBUG] GlobeContainer - Preference update detected!",
         event.detail
       );
-      // Add a small delay to ensure memory is updated
+      // Small delay to ensure localStorage is updated
       setTimeout(() => {
         console.log(
           "🔄 [DEBUG] GlobeContainer - Reloading user locations after preference update..."
         );
         loadUserLocations();
-      }, 2000);
+      }, 100);
     });
 
     return () => {

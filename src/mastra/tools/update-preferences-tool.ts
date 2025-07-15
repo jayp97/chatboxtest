@@ -34,11 +34,8 @@ export const updateUserPreferencesTool = createTool({
       // For now, we just emit the update event
       
       // Emit preference update event to notify the globe
-      notifyPreferenceUpdate({
-        preferences: context,
-        timestamp: new Date().toISOString(),
-        source: "mastra-tool"
-      });
+      // Just send a simple notification - the UI will fetch the data itself
+      notifyPreferenceUpdate();
       
       return {
         success: true,

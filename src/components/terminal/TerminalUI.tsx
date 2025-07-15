@@ -183,12 +183,9 @@ export function TerminalUI({ onCommand, className = "", userId, threadId }: Term
           addResponse("Welcome to GEOSYS v4.2.1 - Geographic Intelligence Terminal");
           addResponse("Type '/help' for available commands");
           
-          // Notify globe to update pins after onboarding completes
-          notifyPreferenceUpdate({
-            source: 'onboarding-complete',
-            preferences: updatedAnswers,
-            timestamp: new Date().toISOString()
-          });
+          // The preferences will be processed by the agent's preference tools
+          // which will handle geocoding and store coordinates in localStorage
+          // Globe will be notified automatically by the preference updater tool
         } catch (error) {
           // Hide loading indicator on error
           setIsLoading(false);
@@ -208,24 +205,78 @@ export function TerminalUI({ onCommand, className = "", userId, threadId }: Term
   // Store preferences in Mastra memory
   const storePreferencesInMemory = async (answers: Record<string, string>) => {
     try {
-      const response = await fetch('/api/stream', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: `My favourite country is ${answers.country}, my favourite continent is ${answers.continent}, and my favourite destination is ${answers.destination}. Please remember these preferences.`,
-          userId: userId,
-          threadId: threadId
-        })
-      });
+      // Send each preference update separately to ensure coordinates are stored
+      const updates = [
+        { type: 'country', value: answers.country },
+        { type: 'continent', value: answers.continent },
+        { type: 'destination', value: answers.destination }
+      ];
       
-      if (response.body) {
-        const reader = response.body.getReader();
-        // Consume the stream but don't display it
-        while (true) {
-          const { done } = await reader.read();
-          if (done) break;
+      for (const update of updates) {
+        if (update.value) {
+          const response = await fetch('/api/stream', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: `Update my favourite ${update.type} to ${update.value}`,
+              userId: userId,
+              threadId: threadId
+            })
+          });
+          
+          if (response.body) {
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let aiResponse = '';
+            
+            // Read the stream to get the agent's response
+            while (true) {
+              const { value, done } = await reader.read();
+              if (done) break;
+              const chunk = decoder.decode(value);
+              aiResponse += chunk;
+            }
+            
+            // Check if the response contains preference update confirmation with coordinates
+            if (aiResponse.includes("PREFERENCE UPDATE CONFIRMED") && aiResponse.includes("COORDINATES:")) {
+              // Extract the preference type and coordinates from the response
+              const typeMatch = aiResponse.match(/>\s*(country|continent|destination)\s+successfully updated to\s+(.+?)(?:\n|$)/i);
+              const coordMatch = aiResponse.match(/COORDINATES:\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*)/);
+              
+              if (typeMatch && coordMatch) {
+                const [, prefType, prefValue] = typeMatch;
+                const [, lat, lng] = coordMatch;
+                
+                // Store in localStorage
+                const { storeUserPreferences } = await import('@/utils/preference-storage');
+                const updates: Record<string, any> = {};
+                
+                if (prefType.toLowerCase() === 'country') {
+                  updates.favouriteCountry = prefValue.trim();
+                  updates.favouriteCountryCoords = [parseFloat(lat), parseFloat(lng)];
+                } else if (prefType.toLowerCase() === 'continent') {
+                  updates.favouriteContinent = prefValue.trim();
+                  updates.favouriteContinentCoords = [parseFloat(lat), parseFloat(lng)];
+                } else if (prefType.toLowerCase() === 'destination') {
+                  updates.favouriteDestination = prefValue.trim();
+                  updates.favouriteDestinationCoords = [parseFloat(lat), parseFloat(lng)];
+                }
+                
+                storeUserPreferences(userId, updates);
+                console.log("[ONBOARDING] Stored preferences from agent response:", updates);
+                
+                // ALWAYS notify globe to update pins after storing preferences
+                notifyPreferenceUpdate();
+              }
+            }
+          }
         }
       }
+      
+      // After all preferences are stored, notify globe to update
+      setTimeout(() => {
+        notifyPreferenceUpdate();
+      }, 500);
     } catch (error) {
       console.error('Error storing preferences:', error);
       addResponse("> WARNING: MEMORY STORAGE PARTIAL FAILURE");
@@ -304,16 +355,8 @@ export function TerminalUI({ onCommand, className = "", userId, threadId }: Term
         // Send update request to agent
         await processCommand(`Update my favourite ${mappedField} to ${value}`);
         
-        // Notify globe after preference update
-        // We'll detect the actual update from the agent's response
-        setTimeout(() => {
-          notifyPreferenceUpdate({
-            source: 'preference-command',
-            field,
-            value,
-            timestamp: new Date().toISOString()
-          });
-        }, 2000); // Give agent time to process
+        // Globe will be notified by the preference tool itself
+        // No need to notify here
         
         return;
       }
@@ -394,28 +437,47 @@ export function TerminalUI({ onCommand, className = "", userId, threadId }: Term
         // We'll display the raw response from the agent
       }
       
-      // Check if response indicates preferences were updated
-      const lowerResponse = aiResponse.toLowerCase();
-      if ((lowerResponse.includes("updated") || lowerResponse.includes("saved") || lowerResponse.includes("noted") || lowerResponse.includes("remember")) && 
-          (lowerResponse.includes("favourite") || lowerResponse.includes("favorite")) &&
-          (lowerResponse.includes("country") || lowerResponse.includes("destination") || lowerResponse.includes("city"))) {
-        // Preference update detected in agent response
+      // Check if the response contains preference update confirmation
+      if (aiResponse.includes("PREFERENCE UPDATE CONFIRMED") && aiResponse.includes("COORDINATES:")) {
+        // Extract the preference type and coordinates from the response
+        const typeMatch = aiResponse.match(/>\s*(country|continent|destination)\s+successfully updated to\s+(.+?)(?:\n|$)/i);
+        const coordMatch = aiResponse.match(/COORDINATES:\s*(-?\d+\.?\d*),\s*(-?\d+\.?\d*)/);
         
-        // Extract what was updated for better logging
-        let updatedField = "preferences";
-        if (lowerResponse.includes("city") || lowerResponse.includes("destination")) {
-          updatedField = "destination/city";
-        } else if (lowerResponse.includes("country")) {
-          updatedField = "country";
+        if (typeMatch && coordMatch) {
+          const [, prefType, prefValue] = typeMatch;
+          const [, lat, lng] = coordMatch;
+          
+          // Store in localStorage
+          const { storeUserPreferences } = await import('@/utils/preference-storage');
+          const updates: Record<string, any> = {};
+          
+          if (prefType.toLowerCase() === 'country') {
+            updates.favouriteCountry = prefValue.trim();
+            updates.favouriteCountryCoords = [parseFloat(lat), parseFloat(lng)];
+          } else if (prefType.toLowerCase() === 'continent') {
+            updates.favouriteContinent = prefValue.trim();
+            updates.favouriteContinentCoords = [parseFloat(lat), parseFloat(lng)];
+          } else if (prefType.toLowerCase() === 'destination') {
+            updates.favouriteDestination = prefValue.trim();
+            updates.favouriteDestinationCoords = [parseFloat(lat), parseFloat(lng)];
+          }
+          
+          storeUserPreferences(userId, updates);
+          console.log("[TERMINAL-UI] Stored preferences in localStorage:", updates);
+          
+          // ALWAYS notify globe to update pins after storing preferences
+          notifyPreferenceUpdate();
         }
-        
-        // Notify globe of the update
-        notifyPreferenceUpdate({
-          source: 'agent-confirmation',
-          field: updatedField,
-          message: aiResponse.substring(0, 200),
-          timestamp: new Date().toISOString()
-        });
+      }
+      
+      // Additional safeguard: notify globe after any response that might contain preference updates
+      if (aiResponse.includes("PREFERENCE UPDATE CONFIRMED") || 
+          aiResponse.includes("successfully updated") ||
+          aiResponse.includes("COORDINATES:")) {
+        // Small delay to ensure localStorage is updated
+        setTimeout(() => {
+          notifyPreferenceUpdate();
+        }, 100);
       }
       
     } catch (error) {

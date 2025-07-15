@@ -27,87 +27,29 @@ export interface UserPreferences {
  */
 export async function fetchUserPreferences(): Promise<UserPreferences | null> {
   try {
-    // Get userId and threadId from localStorage (matches pattern in page.tsx)
+    // Get userId from localStorage (matches pattern in page.tsx)
     const env = process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
     const userKey = `geosys-user-id-${env}`;
-    const threadKey = `geosys-thread-id-${env}`;
     
     const userId = localStorage.getItem(userKey);
-    const threadId = localStorage.getItem(threadKey);
-    console.log("🔍 [DEBUG] Location Service - UserId:", userId, "ThreadId:", threadId);
+    console.log("🔍 [DEBUG] Location Service - UserId:", userId);
     
-    if (!userId || !threadId) {
-      console.log("❌ [DEBUG] No user ID or thread ID found in localStorage");
+    if (!userId) {
+      console.log("❌ [DEBUG] No user ID found in localStorage");
       return null;
     }
 
-    console.log("📡 [DEBUG] Fetching preferences from Mastra memory...");
+    console.log("📡 [DEBUG] Fetching preferences from localStorage...");
     
-    const response = await fetch("/api/stream", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message:
-          "Please provide my current preferences with their exact geographic coordinates. Format the response as JSON with these exact keys: favouriteCountry, favouriteContinent, favouriteDestination, favouriteCountryCoords (as array [lat, lng]), favouriteContinentCoords (as array [lat, lng]), favouriteDestinationCoords (as array [lat, lng]). You MUST include the coordinate arrays for any preference that is set. Use your geographic knowledge to provide accurate coordinates.",
-        userId: userId,
-        threadId: threadId,
-      }),
-    });
-
-    if (!response.ok) {
-      console.error("❌ [DEBUG] Failed to fetch user preferences:", response.statusText);
-      return null;
-    }
-
-    console.log("📥 [DEBUG] Received response, parsing stream...");
-
-    // Parse streaming response to get the final JSON
-    const reader = response.body?.getReader();
-    let result = "";
-
-    if (reader) {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        result += new TextDecoder().decode(value);
-      }
-    }
-
-    console.log("📜 [DEBUG] Complete stream result:", result);
-
-    // Extract JSON from the response - handle nested objects for coordinates
-    try {
-      // More comprehensive regex to capture nested coordinate objects
-      const jsonMatch = result.match(/\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/);
-      console.log("🔍 [DEBUG] JSON match found:", jsonMatch?.[0]);
-      
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
-        console.log("✅ [DEBUG] Parsed preferences:", parsed);
-        console.log("📍 [DEBUG] Destination coords:", parsed.favouriteDestinationCoords);
-        console.log("🌍 [DEBUG] Country coords:", parsed.favouriteCountryCoords);
-        return parsed;
-      } else {
-        console.warn("⚠️ [DEBUG] No JSON match found in response");
-        
-        // Try to find any JSON object in the response as fallback
-        const fallbackMatch = result.match(/\{[\s\S]*\}/);
-        if (fallbackMatch) {
-          try {
-            const parsed = JSON.parse(fallbackMatch[0]);
-            console.log("✅ [DEBUG] Parsed preferences (fallback):", parsed);
-            return parsed;
-          } catch (e) {
-            console.warn("❌ [DEBUG] Fallback JSON parse failed:", e);
-          }
-        }
-      }
-    } catch (parseError) {
-      console.warn("❌ [DEBUG] Could not parse preferences JSON:", parseError);
-      console.warn("📝 [DEBUG] Raw result that failed to parse:", result);
-    }
-
-    return null;
+    // Get preferences from localStorage
+    const { getUserPreferences } = await import('./preference-storage');
+    const preferences = getUserPreferences(userId);
+    
+    console.log("✅ [DEBUG] Retrieved preferences from localStorage:", preferences);
+    console.log("📍 [DEBUG] Destination coords:", preferences.favouriteDestinationCoords);
+    console.log("🌍 [DEBUG] Country coords:", preferences.favouriteCountryCoords);
+    
+    return preferences;
   } catch (error) {
     console.error("💥 [DEBUG] Error fetching user preferences:", error);
     return null;

@@ -43,8 +43,9 @@ export const preferenceUpdaterTool = createTool({
   execute: async ({ context }) => {
     const { preferenceType, value, latitude, longitude } = context;
     
-    // Import the notifyPreferenceUpdate function
+    // Import the required functions
     const { notifyPreferenceUpdate } = await import('@/utils/preference-updater');
+    const { storeUserPreferences } = await import('@/utils/preference-storage');
     
     // Process preference update request
     
@@ -73,29 +74,29 @@ export const preferenceUpdaterTool = createTool({
     
     const message = `Successfully updated ${preferenceType} preference to ${formattedValue} (coordinates: ${coordinatesFormatted})`;
     
-    // Notify the UI about the preference update
-    const updateData: Record<string, unknown> = {
-      source: 'preference-tool',
-      field: preferenceType,
-      value: formattedValue,
-      timestamp: new Date().toISOString()
-    };
+    // Store in our preference cache
+    const userId = "geosys-user-default"; // TODO: Get from context
+    const updates: Record<string, any> = {};
     
-    // Add the specific coordinate field based on preference type
     if (preferenceType === 'country') {
-      updateData.favouriteCountryCoords = [latitude, longitude];
-    } else if (preferenceType === 'destination') {
-      updateData.favouriteDestinationCoords = [latitude, longitude];
+      updates.favouriteCountry = formattedValue;
+      updates.favouriteCountryCoords = [latitude, longitude];
     } else if (preferenceType === 'continent') {
-      updateData.favouriteContinentCoords = [latitude, longitude];
+      updates.favouriteContinent = formattedValue;
+      updates.favouriteContinentCoords = [latitude, longitude];
+    } else if (preferenceType === 'destination') {
+      updates.favouriteDestination = formattedValue;
+      updates.favouriteDestinationCoords = [latitude, longitude];
     }
     
+    storeUserPreferences(userId, updates);
+    
     // Notify the UI about the preference update
-    // Add a small delay to ensure the memory is updated first
+    // Just send a simple notification - the UI will fetch the data itself
     setTimeout(() => {
-      console.log("[PREFERENCE-TOOL] Notifying preference update:", updateData);
-      notifyPreferenceUpdate(updateData);
-    }, 1500);
+      console.log("[PREFERENCE-TOOL] Notifying UI of preference update");
+      notifyPreferenceUpdate();
+    }, 500); // Much shorter delay since we're not waiting for memory
     
     const result = {
       success: true,
