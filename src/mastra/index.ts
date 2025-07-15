@@ -6,15 +6,19 @@
 
 import { Mastra } from "@mastra/core";
 import { LibSQLStore } from "@mastra/libsql";
+import { PostgresStore } from "@mastra/pg";
 
 // Import the geography expert agent
 import { geographyExpert } from "./agents/geography-expert";
 
-// Initialise storage for persistence
-const storage = new LibSQLStore({
-  url: "file:./geography-bot.db",
-  // syncPeriod: 0, // Sync immediately
-});
+// Initialise storage based on environment
+const storage = process.env.POSTGRES_URL
+  ? new PostgresStore({
+      connectionString: process.env.POSTGRES_URL,
+    })
+  : new LibSQLStore({
+      url: "file:./geography-bot.db",
+    });
 
 // Create Mastra instance with configuration
 export const mastra = new Mastra({
