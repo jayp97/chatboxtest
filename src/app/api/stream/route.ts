@@ -6,7 +6,7 @@
 
 import { mastra } from "@/mastra";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 // Define request/response types
 interface ChatRequest {
