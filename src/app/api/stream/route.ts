@@ -2,11 +2,17 @@
  * /api/stream/route.ts
  * Node.js runtime streaming endpoint for GEOSYS Terminal
  * Integrates with Mastra agent for geography queries
+ * 
+ * Runtime: Using Node.js instead of Edge for Mastra compatibility and computational requirements
+ * References:
+ * - https://vercel.com/docs/functions/runtimes/node-js
+ * - https://vercel.com/docs/functions/runtimes/edge
+ * Node.js chosen for: Complete Node.js compatibility, Mastra agent integration, and computational workloads
  */
 
 import { mastra } from "@/mastra";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 // Define request/response types
 interface ChatRequest {
