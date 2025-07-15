@@ -10,7 +10,7 @@ import { useRef, useState, useEffect, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Sphere } from "@react-three/drei";
 import * as THREE from "three";
-import { TopoJSONWireframes, GraticuleGrid } from "./TopoJSONWireframes";
+import { GraticuleGrid } from "./GraticuleGrid";
 import {
   loadDEMData,
   applySphereElevation,
@@ -22,16 +22,11 @@ import {
   createFallbackBathymetryMaterial,
   type BathymetryTextures,
 } from "@/utils/bathymetry-textures";
-import { getNeonMaterialManager } from "@/utils/neon-materials";
-
-// Globe visual modes
-export type GlobeMode = "realistic" | "wireframe" | "hybrid";
 
 // Globe quality settings
 export type GlobeQuality = "high" | "medium" | "low";
 
 interface AdvancedWorldGlobeProps {
-  mode?: GlobeMode;
   quality?: GlobeQuality;
   radius?: number;
   enableElevation?: boolean;
@@ -40,7 +35,6 @@ interface AdvancedWorldGlobeProps {
 }
 
 export function AdvancedWorldGlobe({
-  mode = "hybrid",
   quality = "medium",
   radius = 5, // Larger sphere for better visibility
   enableElevation = true,
@@ -58,7 +52,6 @@ export function AdvancedWorldGlobe({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const materialManager = getNeonMaterialManager();
 
   // Quality-based sphere segments
   const segments = useMemo(() => {
@@ -133,35 +126,18 @@ export function AdvancedWorldGlobe({
     setSphereGeometry(geometry);
   }, [demData, enableElevation, radius, segments, loading]);
 
-  // Create sphere material based on mode
+  // Create sphere material
   const sphereMaterial = useMemo(() => {
     if (!bathymetryTextures) {
       // Fallback material
-      return createFallbackBathymetryMaterial(
-        mode === "wireframe" ? "wireframe" : "realistic"
-      );
+      return createFallbackBathymetryMaterial("realistic");
     }
 
-    switch (mode) {
-      case "realistic":
-        return createBathymetryMaterial(bathymetryTextures, {
-          enableWireframe: false,
-          transparency: 0.9,
-        });
-
-      case "wireframe":
-        return materialManager.getBaseSphere();
-
-      case "hybrid":
-        return createBathymetryMaterial(bathymetryTextures, {
-          enableWireframe: false,
-          transparency: 0.7,
-        });
-
-      default:
-        return createBathymetryMaterial(bathymetryTextures);
-    }
-  }, [bathymetryTextures, mode, materialManager]);
+    return createBathymetryMaterial(bathymetryTextures, {
+      enableWireframe: false,
+      transparency: 0.9,
+    });
+  }, [bathymetryTextures]);
 
   // Animation frame handler
   useFrame((state, delta) => {
@@ -185,9 +161,6 @@ export function AdvancedWorldGlobe({
     }
   });
 
-  // Determine what wireframes to show based on mode
-  const showWireframes = mode === "wireframe" || mode === "hybrid";
-  const showTubes = mode === "hybrid" && quality !== "low";
 
   if (loading) {
     return (
@@ -230,25 +203,12 @@ export function AdvancedWorldGlobe({
         />
       )}
 
-      {/* TopoJSON wireframes (land and country boundaries) */}
-      {showWireframes && (
-        <TopoJSONWireframes
-          visible={true}
-          showLand={true}
-          showCountries={mode !== "wireframe"}
-          showTubes={showTubes}
-          enableElevation={enableElevation}
-          resolution={quality}
-          radius={radius + 0.05}
-          animated={animated}
-        />
-      )}
 
       {/* Latitude/longitude grid */}
       {showGrid && (
         <GraticuleGrid
           visible={true}
-          opacity={mode === "wireframe" ? 0.4 : 0.2}
+          opacity={0.2}
           radius={radius + 0.1}
           spacing={15}
         />
@@ -261,7 +221,7 @@ export function AdvancedWorldGlobe({
         position={[0, 0, 0]}
       >
         <meshBasicMaterial
-          color={mode === "wireframe" ? "#00ff00" : "#004488"}
+          color="#004488"
           transparent
           opacity={0.05}
           side={THREE.BackSide}
@@ -272,7 +232,7 @@ export function AdvancedWorldGlobe({
       {/* Outer glow ring */}
       <Sphere args={[radius + 0.8, 24, 24]} position={[0, 0, 0]}>
         <meshBasicMaterial
-          color={mode === "wireframe" ? "#00ff00" : "#0066aa"}
+          color="#0066aa"
           transparent
           opacity={0.02}
           side={THREE.BackSide}
@@ -280,60 +240,5 @@ export function AdvancedWorldGlobe({
         />
       </Sphere>
     </group>
-  );
-}
-
-// Globe controls component for mode switching
-export function GlobeControls({
-  mode,
-  quality,
-  onModeChange,
-  onQualityChange,
-}: {
-  mode: GlobeMode;
-  quality: GlobeQuality;
-  onModeChange: (mode: GlobeMode) => void;
-  onQualityChange: (quality: GlobeQuality) => void;
-}) {
-  return (
-    <div className="absolute top-4 right-4 bg-black/80 p-4 rounded border border-green-500 text-green-400 font-mono text-sm">
-      <div className="mb-2">
-        <span className="text-green-300">MODE:</span>
-        <div className="flex gap-2 mt-1">
-          {(["realistic", "wireframe", "hybrid"] as const).map((m) => (
-            <button
-              key={m}
-              onClick={() => onModeChange(m)}
-              className={`px-2 py-1 border ${
-                mode === m
-                  ? "border-green-400 bg-green-400/20"
-                  : "border-green-600 hover:border-green-400"
-              }`}
-            >
-              {m.toUpperCase()}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <span className="text-green-300">QUALITY:</span>
-        <div className="flex gap-2 mt-1">
-          {(["low", "medium", "high"] as const).map((q) => (
-            <button
-              key={q}
-              onClick={() => onQualityChange(q)}
-              className={`px-2 py-1 border ${
-                quality === q
-                  ? "border-green-400 bg-green-400/20"
-                  : "border-green-600 hover:border-green-400"
-              }`}
-            >
-              {q.toUpperCase()}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
   );
 }

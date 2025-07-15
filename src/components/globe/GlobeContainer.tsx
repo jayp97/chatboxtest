@@ -9,8 +9,8 @@
 import { Suspense, useState, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { ErrorBoundary } from "react-error-boundary";
+import { OrbitControls } from "@react-three/drei";
 import { WorldGlobe } from "./WorldGlobe";
-import { GlobeControls } from "./GlobeControls";
 import { LocationPins } from "./LocationPins";
 import {
   getUserLocationPins,
@@ -180,13 +180,21 @@ export function GlobeContainer({
             <WorldGlobe
               showGrid={showGrid}
               animateWireframes={animateWireframes}
-              initialMode="wireframe"
               initialQuality="medium"
               showControls={false}
             />
 
-            {/* Camera controls */}
-            <GlobeControls />
+            {/* Camera controls for interaction */}
+            <OrbitControls
+              enablePan={false}
+              enableZoom={true}
+              enableRotate={true}
+              minDistance={6}
+              maxDistance={25}
+              enableDamping={true}
+              dampingFactor={0.05}
+              autoRotate={false}
+            />
 
             {/* Location pins - user's favorite destinations */}
             <LocationPins locations={userLocations} globeRadius={4} />

@@ -9,8 +9,6 @@
 import { useState } from "react";
 import {
   AdvancedWorldGlobe,
-  GlobeControls as GlobeModeControls,
-  type GlobeMode,
   type GlobeQuality,
 } from "./AdvancedWorldGlobe";
 import {
@@ -22,7 +20,6 @@ import {
 interface WorldGlobeProps {
   showGrid?: boolean;
   animateWireframes?: boolean;
-  initialMode?: GlobeMode;
   initialQuality?: GlobeQuality;
   showControls?: boolean;
   useObservable?: boolean; // Use Observable-style globe with textures
@@ -31,13 +28,11 @@ interface WorldGlobeProps {
 export function WorldGlobe({
   showGrid = true,
   animateWireframes = true,
-  initialMode = "wireframe",
   initialQuality = "medium",
   showControls = false,
   useObservable = true, // Default to Observable globe with textures
 }: WorldGlobeProps = {}) {
-  const [mode, setMode] = useState<GlobeMode>(initialMode);
-  const [quality, setQuality] = useState<GlobeQuality>(initialQuality);
+  const [quality] = useState<GlobeQuality>(initialQuality);
   const [observableMode, setObservableMode] =
     useState<ObservableGlobeMode>("realistic");
 
@@ -66,23 +61,14 @@ export function WorldGlobe({
         /* Advanced globe with wireframes */
         <>
           <AdvancedWorldGlobe
-            mode={mode}
             quality={quality}
             radius={4} // Smaller default size for better UX
-            enableElevation={mode !== "wireframe"}
+            enableElevation={true}
             showGrid={showGrid}
             animated={animateWireframes}
           />
 
-          {/* Advanced globe controls (if enabled) */}
-          {showControls && (
-            <GlobeModeControls
-              mode={mode}
-              quality={quality}
-              onModeChange={setMode}
-              onQualityChange={setQuality}
-            />
-          )}
+          {/* Advanced globe controls removed - component no longer exists */}
         </>
       )}
     </>
