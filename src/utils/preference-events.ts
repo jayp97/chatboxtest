@@ -18,7 +18,7 @@ export class PreferenceEventEmitter extends EventTarget {
     return PreferenceEventEmitter.instance;
   }
 
-  emitPreferenceUpdate(detail?: any) {
+  emitPreferenceUpdate(detail?: Record<string, unknown>) {
     // Emit preference update event to all listeners
     const event = new CustomEvent('preferenceUpdate', { detail });
     this.dispatchEvent(event);
@@ -37,7 +37,7 @@ export const preferenceEvents = PreferenceEventEmitter.getInstance();
 
 // Also expose as window event for cross-component communication
 if (typeof window !== 'undefined') {
-  (window as any).emitPreferenceUpdate = (detail?: any) => {
+  (window as typeof window & Record<string, unknown>).emitPreferenceUpdate = (detail?: Record<string, unknown>) => {
     preferenceEvents.emitPreferenceUpdate(detail);
   };
 }

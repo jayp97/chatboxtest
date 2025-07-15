@@ -42,7 +42,7 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
   });
   
   // Hook to detect preference updates in chat
-  const { triggerUpdate } = usePreferenceUpdates();
+  const { } = usePreferenceUpdates();
   const terminalRef = useRef<HTMLDivElement>(null);
 
 
@@ -160,33 +160,52 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
         addResponse("PREFERENCE INITIALIZATION COMPLETE");
         addResponse("STORING PREFERENCES IN MEMORY CORE...");
         
-        // Send preferences to Mastra
-        await storePreferencesInMemory(updatedAnswers);
+        // Show loading indicator while storing preferences
+        setIsLoading(true);
         
-        // Complete onboarding
-        setOnboardingState({
-          isOnboarding: false,
-          currentStep: 'complete',
-          answers: updatedAnswers
-        });
-        
-        addResponse("> PREFERENCES STORED SUCCESSFULLY");
-        addResponse("");
-        addResponse("Welcome to GEOSYS v4.2.1 - Geographic Intelligence Terminal");
-        addResponse("Type '/help' for available commands");
-        
-        // Notify globe to update pins after onboarding completes
-        notifyPreferenceUpdate({
-          source: 'onboarding-complete',
-          preferences: updatedAnswers,
-          timestamp: new Date().toISOString()
-        });
+        try {
+          // Send preferences to Mastra
+          await storePreferencesInMemory(updatedAnswers);
+          
+          // Hide loading indicator
+          setIsLoading(false);
+          
+          // Complete onboarding
+          setOnboardingState({
+            isOnboarding: false,
+            currentStep: 'complete',
+            answers: updatedAnswers
+          });
+          
+          addResponse("> PREFERENCES STORED SUCCESSFULLY");
+          addResponse("");
+          addResponse("Welcome to GEOSYS v4.2.1 - Geographic Intelligence Terminal");
+          addResponse("Type '/help' for available commands");
+          
+          // Notify globe to update pins after onboarding completes
+          notifyPreferenceUpdate({
+            source: 'onboarding-complete',
+            preferences: updatedAnswers,
+            timestamp: new Date().toISOString()
+          });
+        } catch (error) {
+          // Hide loading indicator on error
+          setIsLoading(false);
+          
+          addResponse("> ERROR: FAILED TO STORE PREFERENCES IN MEMORY CORE");
+          addResponse(`> ${error instanceof Error ? error.message : 'Unknown error'}`);
+          addResponse("");
+          addResponse("Retrying preference storage...");
+          
+          // Retry after a brief delay
+          setTimeout(() => handleOnboardingInput(cleanInput), 2000);
+        }
         break;
     }
   };
   
   // Store preferences in Mastra memory
-  const storePreferencesInMemory = async (answers: any) => {
+  const storePreferencesInMemory = async (answers: Record<string, string>) => {
     try {
       const response = await fetch('/api/stream', {
         method: 'POST',
@@ -221,6 +240,11 @@ export function TerminalUI({ onCommand, className = "", userId }: TerminalUIProp
 
   // Handle command submission
   const handleCommand = async (command: string) => {
+    // Prevent commands while loading
+    if (isLoading) {
+      return;
+    }
+    
     // Add command to history
     setTerminalHistory(prev => {
       const newHistory = [...prev, `> ${command}`];

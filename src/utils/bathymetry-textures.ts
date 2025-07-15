@@ -92,7 +92,7 @@ async function loadTexture(path: string, name: string): Promise<THREE.Texture> {
       },
       (error) => {
         console.error(`Failed to load ${name} bathymetry texture:`, error);
-        reject(new Error(`Failed to load ${name} texture: ${error.message}`));
+        reject(new Error(`Failed to load ${name} texture: ${error instanceof Error ? error.message : 'Unknown error'}`));
       }
     );
   });
@@ -194,7 +194,7 @@ export function createBathymetryMaterial(
   
   // Add emissive properties
   if (finalConfig.emissive && finalConfig.emissiveIntensity > 0) {
-    materialOptions.emissive = new THREE.Color(finalConfig.emissive);
+    (materialOptions as typeof materialOptions & { emissive: THREE.Color }).emissive = new THREE.Color(finalConfig.emissive);
     // Note: emissiveIntensity is not available in MeshBasicMaterial
   }
   

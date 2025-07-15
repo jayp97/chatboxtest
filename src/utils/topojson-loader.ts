@@ -18,16 +18,16 @@ const WORLD_ATLAS_URLS = {
 // Type definitions for TopoJSON data
 export interface TopoJSONFeature {
   type: "Feature";
-  properties: Record<string, any>;
+  properties: Record<string, unknown>;
   geometry: {
     type: string;
-    coordinates: any;
+    coordinates: unknown;
   };
 }
 
 export interface TopoJSONTopology {
   type: "Topology";
-  objects: Record<string, any>;
+  objects: Record<string, unknown>;
   arcs: Array<Array<[number, number]>>;
   bbox?: [number, number, number, number];
   transform?: {
@@ -104,11 +104,11 @@ async function loadTopoJSON(url: string, maxRetries: number = 3): Promise<TopoJS
 // Generate mesh from topology using topojson.mesh
 export function generateMesh(
   topology: TopoJSONTopology, 
-  object: any, 
-  filter?: (a: any, b: any) => boolean
+  object: unknown, 
+  filter?: (a: unknown, b: unknown) => boolean
 ): MeshData {
   try {
-    const mesh = topojson.mesh(topology, object, filter);
+    const mesh = topojson.mesh(topology as Parameters<typeof topojson.mesh>[0], object as Parameters<typeof topojson.mesh>[1], filter);
     
     // Ensure we have a MultiLineString
     if (mesh.type !== "MultiLineString") {
@@ -202,12 +202,12 @@ export function generateFeatures(topology: TopoJSONTopology, objectName: string)
       throw new Error(`Object '${objectName}' not found in topology`);
     }
     
-    const featureCollection = topojson.feature(topology, object) as any;
+    const featureCollection = topojson.feature(topology as Parameters<typeof topojson.feature>[0], object as Parameters<typeof topojson.feature>[1]) as { type: string; features?: TopoJSONFeature[] };
     
     if (featureCollection.type === 'FeatureCollection') {
       return featureCollection.features || [];
     } else {
-      return [featureCollection];
+      return [featureCollection as TopoJSONFeature];
     }
   } catch (error) {
     console.error('Error generating features:', error);

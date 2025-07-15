@@ -28,7 +28,6 @@ interface AdvancedWorldGlobeProps {
   enableElevation?: boolean;
   showGrid?: boolean;
   animated?: boolean;
-  highlightedCountry?: string | null;
 }
 
 export function AdvancedWorldGlobe({
@@ -37,8 +36,7 @@ export function AdvancedWorldGlobe({
   radius = 5, // Larger sphere for better visibility
   enableElevation = true,
   showGrid = true,
-  animated = true,
-  highlightedCountry = null
+  animated = true
 }: AdvancedWorldGlobeProps) {
   const globeRef = useRef<THREE.Mesh>(null);
   const atmosphereRef = useRef<THREE.Mesh>(null);

@@ -11,7 +11,7 @@ import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { vertex } from "@/utils/coordinate-conversion";
 import { loadWorldAtlasData, type WorldAtlasData, type MeshData } from "@/utils/topojson-loader";
-import { loadDEMData, generateElevatedWireframe, type DEMData } from "@/utils/dem-elevation";
+import { loadDEMData, type DEMData } from "@/utils/dem-elevation";
 import { getNeonMaterialManager } from "@/utils/neon-materials";
 
 // Observable wireframe function (exact implementation)
@@ -96,7 +96,7 @@ export function TopoJSONWireframes({
 }: TopoJSONWireframesProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [worldData, setWorldData] = useState<WorldAtlasData | null>(null);
-  const [demData, setDEMData] = useState<DEMData | null>(null);
+  const [, setDEMData] = useState<DEMData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -276,7 +276,10 @@ export function GraticuleGrid({
       lines.push(parallel);
     }
     
-    return { coordinates: lines };
+    return { 
+      type: "MultiLineString" as const,
+      coordinates: lines 
+    };
   }, [spacing]);
 
   const graticuleWireframe = useMemo(() => {
@@ -300,7 +303,7 @@ export function GraticuleGrid({
 
 // Loading indicator for TopoJSON data
 export function TopoJSONLoader({ visible }: { visible: boolean }) {
-  const [progress, setProgress] = useState(0);
+  const [, setProgress] = useState(0);
   
   useEffect(() => {
     if (!visible) return;

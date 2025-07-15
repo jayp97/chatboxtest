@@ -257,3 +257,6 @@ export function formatDistanceReport(result: z.infer<typeof distanceOutputSchema
 // Export type definitions
 export type DistanceInput = z.infer<typeof distanceInputSchema>;
 export type DistanceOutput = z.infer<typeof distanceOutputSchema>;
+
+// Export schemas for external use
+export { distanceInputSchema, distanceOutputSchema };

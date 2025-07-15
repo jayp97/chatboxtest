@@ -196,3 +196,6 @@ function formatTime(isoTime: string): string {
 // Export type definitions
 export type WeatherInput = z.infer<typeof weatherInputSchema>;
 export type WeatherOutput = z.infer<typeof weatherOutputSchema>;
+
+// Export schemas for external use
+export { weatherInputSchema, weatherOutputSchema };

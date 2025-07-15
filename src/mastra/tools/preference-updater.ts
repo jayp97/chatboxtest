@@ -43,6 +43,9 @@ export const preferenceUpdaterTool = createTool({
   execute: async ({ context }) => {
     const { preferenceType, value, latitude, longitude } = context;
     
+    // Import the notifyPreferenceUpdate function
+    const { notifyPreferenceUpdate } = await import('@/utils/preference-updater');
+    
     // Process preference update request
     
     // Clean and format the value
@@ -70,6 +73,30 @@ export const preferenceUpdaterTool = createTool({
     
     const message = `Successfully updated ${preferenceType} preference to ${formattedValue} (coordinates: ${coordinatesFormatted})`;
     
+    // Notify the UI about the preference update
+    const updateData: Record<string, unknown> = {
+      source: 'preference-tool',
+      field: preferenceType,
+      value: formattedValue,
+      timestamp: new Date().toISOString()
+    };
+    
+    // Add the specific coordinate field based on preference type
+    if (preferenceType === 'country') {
+      updateData.favouriteCountryCoords = [latitude, longitude];
+    } else if (preferenceType === 'destination') {
+      updateData.favouriteDestinationCoords = [latitude, longitude];
+    } else if (preferenceType === 'continent') {
+      updateData.favouriteContinentCoords = [latitude, longitude];
+    }
+    
+    // Notify the UI about the preference update
+    // Add a small delay to ensure the memory is updated first
+    setTimeout(() => {
+      console.log("[PREFERENCE-TOOL] Notifying preference update:", updateData);
+      notifyPreferenceUpdate(updateData);
+    }, 1500);
+    
     const result = {
       success: true,
       preferenceType,
@@ -81,6 +108,7 @@ export const preferenceUpdaterTool = createTool({
     };
     
     // Preference update completed successfully
+    console.log("[PREFERENCE-TOOL] Tool execution complete:", result);
     
     return result;
   }

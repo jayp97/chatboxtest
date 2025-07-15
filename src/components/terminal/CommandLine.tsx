@@ -6,7 +6,7 @@
 
 "use client";
 
-import { useState, useRef, useEffect, KeyboardEvent } from "react";
+import { useState, useRef, useEffect, KeyboardEvent, useMemo } from "react";
 
 interface CommandLineProps {
   onCommand?: (command: string) => void;
@@ -22,11 +22,8 @@ export function CommandLine({ onCommand }: CommandLineProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
 
-  // Common commands for auto-complete
-  // Commands are divided into two categories:
-  // 1. System commands (start with /): Terminal control commands like /help, /clear, etc.
-  // 2. Chat queries (no prefix): Geography questions sent to the AI agent like "weather in London"
-  const commonCommands = [
+  // Common commands for auto-complete (memoized to avoid dependency issues)
+  const commonCommands = useMemo(() => [
     // System commands - control the terminal interface
     "/help",
     "/clear",
@@ -40,7 +37,7 @@ export function CommandLine({ onCommand }: CommandLineProps) {
     "distance",
     "trivia",
     "map",
-  ];
+  ], []);
 
   // Focus input on mount
   useEffect(() => {
@@ -66,7 +63,7 @@ export function CommandLine({ onCommand }: CommandLineProps) {
     } else {
       setShowSuggestions(false);
     }
-  }, [input]);
+  }, [input, commonCommands]);
 
   // Handle keyboard input
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -230,7 +227,7 @@ export function CommandLine({ onCommand }: CommandLineProps) {
       {/* Command hints */}
       {input.length === 0 && (
         <div className="mt-2 text-green-400/40 text-xs">
-          Type '/help' for commands • Use ↑/↓ for history • TAB for auto-complete
+          Type &apos;/help&apos; for commands • Use ↑/↓ for history • TAB for auto-complete
         </div>
       )}
     </div>

@@ -12,30 +12,30 @@ import { ErrorBoundary } from "react-error-boundary";
 import { WorldGlobe } from "./WorldGlobe";
 import { GlobeControls } from "./GlobeControls";
 import { LocationPins } from "./LocationPins";
-import { StarField } from "./StarField";
-import { getUserLocationPins, type LocationCoordinate } from "@/utils/location-service";
+import {
+  getUserLocationPins,
+  type LocationCoordinate,
+} from "@/utils/location-service";
 import { preferenceEvents } from "@/utils/preference-events";
 // import { Perf } from "@react-three/drei"; // Performance monitor (optional)
 
 interface GlobeContainerProps {
   className?: string;
-  showPerformanceMonitor?: boolean;
   showGrid?: boolean;
   animateWireframes?: boolean;
-  highlightedContinent?: string | null;
 }
 
 // Loading component with terminal style
 function GlobeLoader() {
   const [dots, setDots] = useState("");
-  
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setDots(prev => prev.length >= 3 ? "" : prev + ".");
+      setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
     }, 500);
     return () => clearInterval(interval);
   }, []);
-  
+
   return (
     <div className="w-full h-full flex items-center justify-center bg-black/40 backdrop-blur-sm">
       <div className="text-center">
@@ -46,7 +46,10 @@ function GlobeLoader() {
           LOADING WIREFRAME GEOMETRY
         </div>
         <div className="mt-4 w-48 h-1 bg-green-900/50 rounded overflow-hidden">
-          <div className="h-full bg-green-400 animate-pulse" style={{ width: "85%" }} />
+          <div
+            className="h-full bg-green-400 animate-pulse"
+            style={{ width: "85%" }}
+          />
         </div>
       </div>
     </div>
@@ -74,27 +77,26 @@ function GlobeErrorFallback({ error }: { error: Error }) {
   );
 }
 
-export function GlobeContainer({ 
-  className = "", 
-  showPerformanceMonitor: _showPerformanceMonitor = false,
+export function GlobeContainer({
+  className = "",
   showGrid = true,
   animateWireframes = true,
-  highlightedContinent = null
 }: GlobeContainerProps) {
   const [webGLSupported, setWebGLSupported] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [userLocations, setUserLocations] = useState<LocationCoordinate[]>([]);
-  
+
   // Check WebGL support
   useEffect(() => {
     try {
       const canvas = document.createElement("canvas");
-      const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+      const gl =
+        canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
       setWebGLSupported(!!gl);
     } catch {
       setWebGLSupported(false);
     }
-    
+
     // Reduced loading time for wireframe system (no textures to load)
     const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
@@ -104,48 +106,71 @@ export function GlobeContainer({
   useEffect(() => {
     const loadUserLocations = async () => {
       try {
-        console.log('🌍 [DEBUG] GlobeContainer - Starting to fetch user location pins...');
+        console.log(
+          "🌍 [DEBUG] GlobeContainer - Starting to fetch user location pins..."
+        );
         const locations = await getUserLocationPins();
-        console.log('📍 [DEBUG] GlobeContainer - Loaded user locations:', locations);
-        console.log(`🔢 [DEBUG] GlobeContainer - Setting ${locations.length} locations in state`);
+        console.log(
+          "📍 [DEBUG] GlobeContainer - Loaded user locations:",
+          locations
+        );
+        console.log(
+          `🔢 [DEBUG] GlobeContainer - Setting ${locations.length} locations in state`
+        );
         setUserLocations(locations);
-        console.log('✅ [DEBUG] GlobeContainer - Locations successfully set for globe rendering');
+        console.log(
+          "✅ [DEBUG] GlobeContainer - Locations successfully set for globe rendering"
+        );
       } catch (error) {
-        console.error('💥 [DEBUG] GlobeContainer - Failed to load user locations:', error);
+        console.error(
+          "💥 [DEBUG] GlobeContainer - Failed to load user locations:",
+          error
+        );
         // Gracefully continue without pins
         setUserLocations([]);
       }
     };
 
     // Initial load after globe renders
-    console.log('⏱️ [DEBUG] GlobeContainer - Setting timer for initial location loading...');
+    console.log(
+      "⏱️ [DEBUG] GlobeContainer - Setting timer for initial location loading..."
+    );
     const initialTimer = setTimeout(loadUserLocations, 1000);
-    
+
     // Listen for preference updates - NO POLLING!
-    console.log('👂 [DEBUG] GlobeContainer - Setting up preference update listener...');
+    console.log(
+      "👂 [DEBUG] GlobeContainer - Setting up preference update listener..."
+    );
     const unsubscribe = preferenceEvents.onPreferenceUpdate((event) => {
-      console.log('🎯 [DEBUG] GlobeContainer - Preference update detected!', event.detail);
-      loadUserLocations();
+      console.log(
+        "🎯 [DEBUG] GlobeContainer - Preference update detected!",
+        event.detail
+      );
+      // Add a small delay to ensure memory is updated
+      setTimeout(() => {
+        console.log("🔄 [DEBUG] GlobeContainer - Reloading user locations after preference update...");
+        loadUserLocations();
+      }, 2000);
     });
-    
+
     return () => {
       clearTimeout(initialTimer);
       unsubscribe();
     };
   }, []);
-  
+
   if (!webGLSupported) {
     return (
-      <GlobeErrorFallback 
-        error={new Error("WebGL is not supported in your browser")} 
+      <GlobeErrorFallback
+        error={new Error("WebGL is not supported in your browser")}
       />
     );
   }
-  
+
   if (isLoading) {
     return <GlobeLoader />;
   }
-  
+
   return (
     <div className={`w-full h-full ${className}`}>
       <ErrorBoundary FallbackComponent={GlobeErrorFallback}>
@@ -169,13 +194,13 @@ export function GlobeContainer({
           >
             {/* Performance monitor (debug mode) */}
             {/* {showPerformanceMonitor && <Perf position="top-left" />} */}
-            
+
             {/* Star field background */}
-            <StarField />
-            
+            {/* <StarField /> */}
+
             {/* Ambient lighting */}
             <ambientLight intensity={0.3} />
-            
+
             {/* Main directional light (sun) */}
             <directionalLight
               position={[5, 3, 5]}
@@ -183,29 +208,21 @@ export function GlobeContainer({
               castShadow
               shadow-mapSize={[2048, 2048]}
             />
-            
+
             {/* Advanced globe with TopoJSON and DEM */}
-            <WorldGlobe 
+            <WorldGlobe
               showGrid={showGrid}
               animateWireframes={animateWireframes}
-              highlightedContinent={highlightedContinent}
               initialMode="wireframe"
               initialQuality="medium"
               showControls={false}
             />
-            
+
             {/* Camera controls */}
             <GlobeControls />
-            
+
             {/* Location pins - user's favorite destinations */}
-            <LocationPins 
-              locations={userLocations} 
-              globeRadius={4} 
-              ref={(ref) => {
-                console.log('📌 [DEBUG] GlobeContainer - LocationPins ref:', ref);
-                console.log('📊 [DEBUG] GlobeContainer - Passing locations to LocationPins:', userLocations);
-              }}
-            />
+            <LocationPins locations={userLocations} globeRadius={4} />
           </Canvas>
         </Suspense>
       </ErrorBoundary>

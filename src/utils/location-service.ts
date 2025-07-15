@@ -16,10 +16,10 @@ export interface UserPreferences {
   favouriteCountry?: string;
   favouriteContinent?: string;
   favouriteDestination?: string;
-  // Coordinate data for globe pins
-  favouriteCountryCoords?: { lat: number; lng: number };
-  favouriteContinentCoords?: { lat: number; lng: number };
-  favouriteDestinationCoords?: { lat: number; lng: number };
+  // Coordinate data for globe pins - can be array [lat, lng] or object {lat, lng}
+  favouriteCountryCoords?: { lat: number; lng: number } | [number, number];
+  favouriteContinentCoords?: { lat: number; lng: number } | [number, number];
+  favouriteDestinationCoords?: { lat: number; lng: number } | [number, number];
 }
 
 /**
@@ -43,7 +43,7 @@ export async function fetchUserPreferences(): Promise<UserPreferences | null> {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         message:
-          "Please provide my current preferences with coordinates. Format as JSON with keys: favouriteCountry, favouriteContinent, favouriteDestination, favouriteCountryCoords, favouriteContinentCoords, favouriteDestinationCoords. Include coordinates if available. If any are not set, omit them from the response.",
+          "Please provide my current preferences with their exact geographic coordinates. Format the response as JSON with these exact keys: favouriteCountry, favouriteContinent, favouriteDestination, favouriteCountryCoords (as array [lat, lng]), favouriteContinentCoords (as array [lat, lng]), favouriteDestinationCoords (as array [lat, lng]). You MUST include the coordinate arrays for any preference that is set. Use your geographic knowledge to provide accurate coordinates.",
         userId: userId,
         threadId: "geosys-terminal-thread",
       }),
@@ -79,6 +79,8 @@ export async function fetchUserPreferences(): Promise<UserPreferences | null> {
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         console.log("✅ [DEBUG] Parsed preferences:", parsed);
+        console.log("📍 [DEBUG] Destination coords:", parsed.favouriteDestinationCoords);
+        console.log("🌍 [DEBUG] Country coords:", parsed.favouriteCountryCoords);
         return parsed;
       } else {
         console.warn("⚠️ [DEBUG] No JSON match found in response");
@@ -123,10 +125,20 @@ export function convertPreferencesToLocations(
     console.log("🗺️ [DEBUG] Destination coordinates:", preferences.favouriteDestinationCoords);
     
     if (preferences.favouriteDestinationCoords) {
-      // Handle both formats: {lat, lng} and {latitude, longitude}
-      const coords = preferences.favouriteDestinationCoords as any;
-      const lat = coords.lat ?? coords.latitude;
-      const lng = coords.lng ?? coords.longitude;
+      // Handle both formats: [lat, lng] array and {lat, lng} object
+      let lat: number | undefined;
+      let lng: number | undefined;
+      
+      if (Array.isArray(preferences.favouriteDestinationCoords)) {
+        // Handle array format [lat, lng]
+        lat = preferences.favouriteDestinationCoords[0];
+        lng = preferences.favouriteDestinationCoords[1];
+      } else {
+        // Handle object formats: {lat, lng} and {latitude, longitude}
+        const coords = preferences.favouriteDestinationCoords as { lat?: number; lng?: number; latitude?: number; longitude?: number };
+        lat = coords.lat ?? coords.latitude;
+        lng = coords.lng ?? coords.longitude;
+      }
       
       if (lat !== undefined && lng !== undefined) {
         const pin = {
@@ -141,7 +153,7 @@ export function convertPreferencesToLocations(
         console.log(`📍 DESTINATION COORDS: ${preferences.favouriteDestination} at lat:${lat}, lng:${lng}`);
         locations.push(pin);
       } else {
-        console.warn("⚠️ [DEBUG] Invalid coordinate format:", coords);
+        console.warn("⚠️ [DEBUG] Invalid coordinate format:", preferences.favouriteDestinationCoords);
       }
     } else {
       console.warn("⚠️ [DEBUG] Favourite destination has no coordinates!");
@@ -160,10 +172,20 @@ export function convertPreferencesToLocations(
       preferences.favouriteCountry.toLowerCase() !==
         preferences.favouriteDestination?.toLowerCase()
     ) {
-      // Handle both formats: {lat, lng} and {latitude, longitude}
-      const coords = preferences.favouriteCountryCoords as any;
-      const lat = coords.lat ?? coords.latitude;
-      const lng = coords.lng ?? coords.longitude;
+      // Handle both formats: [lat, lng] array and {lat, lng} object
+      let lat: number | undefined;
+      let lng: number | undefined;
+      
+      if (Array.isArray(preferences.favouriteCountryCoords)) {
+        // Handle array format [lat, lng]
+        lat = preferences.favouriteCountryCoords[0];
+        lng = preferences.favouriteCountryCoords[1];
+      } else {
+        // Handle object formats: {lat, lng} and {latitude, longitude}
+        const coords = preferences.favouriteCountryCoords as { lat?: number; lng?: number; latitude?: number; longitude?: number };
+        lat = coords.lat ?? coords.latitude;
+        lng = coords.lng ?? coords.longitude;
+      }
       
       if (lat !== undefined && lng !== undefined) {
         const pin = {
@@ -178,7 +200,7 @@ export function convertPreferencesToLocations(
         console.log(`🌍 COUNTRY COORDS: ${preferences.favouriteCountry} at lat:${lat}, lng:${lng}`);
         locations.push(pin);
       } else {
-        console.warn("⚠️ [DEBUG] Invalid coordinate format:", coords);
+        console.warn("⚠️ [DEBUG] Invalid coordinate format:", preferences.favouriteCountryCoords);
       }
     } else if (!preferences.favouriteCountryCoords) {
       console.warn("⚠️ [DEBUG] Favourite country has no coordinates!");

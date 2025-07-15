@@ -22,7 +22,6 @@ import {
 interface WorldGlobeProps {
   showGrid?: boolean;
   animateWireframes?: boolean;
-  highlightedContinent?: string | null;
   initialMode?: GlobeMode;
   initialQuality?: GlobeQuality;
   showControls?: boolean;
@@ -32,7 +31,6 @@ interface WorldGlobeProps {
 export function WorldGlobe({
   showGrid = true,
   animateWireframes = true,
-  highlightedContinent = null,
   initialMode = "wireframe",
   initialQuality = "medium",
   showControls = false,
@@ -74,7 +72,6 @@ export function WorldGlobe({
             enableElevation={mode !== "wireframe"}
             showGrid={showGrid}
             animated={animateWireframes}
-            highlightedCountry={highlightedContinent}
           />
 
           {/* Advanced globe controls (if enabled) */}

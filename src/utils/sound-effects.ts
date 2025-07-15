@@ -10,7 +10,7 @@ export class SoundEffects {
 
   constructor() {
     if (typeof window !== "undefined") {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      this.audioContext = new (window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     }
   }
 

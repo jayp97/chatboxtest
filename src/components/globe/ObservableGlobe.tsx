@@ -9,7 +9,7 @@
 import { useRef, useState, useEffect, useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { vertex, avertex } from "@/utils/coordinate-conversion";
+import { avertex } from "@/utils/coordinate-conversion";
 import { loadDEMData, type DEMData } from "@/utils/dem-elevation";
 import { loadBathymetryTextures, type BathymetryTextures } from "@/utils/bathymetry-textures";
 
@@ -32,7 +32,7 @@ export function ObservableGlobe({
 }: ObservableGlobeProps) {
   const sphereRef = useRef<THREE.Mesh>(null);
   
-  const [demData, setDEMData] = useState<DEMData | null>(null);
+  const [, setDEMData] = useState<DEMData | null>(null);
   const [bathymetryTextures, setBathymetryTextures] = useState<BathymetryTextures | null>(null);
   const [heightData, setHeightData] = useState<Uint8ClampedArray | null>(null);
   const [loading, setLoading] = useState(true);
@@ -284,7 +284,7 @@ export function ObservableGlobe({
         <mesh position={[0, 0, 0]}>
           <sphereGeometry args={[radius + 0.3, 32, 32]} />
           <meshBasicMaterial
-            color={mode === 'wireframe' ? "#00ff00" : "#004488"}
+            color="#004488"
             transparent
             opacity={0.05}
             side={THREE.BackSide}

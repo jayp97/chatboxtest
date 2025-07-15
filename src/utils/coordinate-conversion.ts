@@ -148,12 +148,12 @@ export function greatCirclePath(
     const lat1Rad = lat1 * Math.PI / 180;
     const lat2Rad = lat2 * Math.PI / 180;
     const deltaLat = lat2Rad - lat1Rad;
-    const deltaLon = (lon2 - lon1) * Math.PI / 180;
+    // const deltaLon = (lon2 - lon1) * Math.PI / 180;
     
-    const a = Math.sin((1-f) * deltaLat/2) * Math.sin((1-f) * deltaLat/2) + 
-              Math.cos(lat1Rad) * Math.cos(lat2Rad) * 
-              Math.sin((1-f) * deltaLon/2) * Math.sin((1-f) * deltaLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    // const a = Math.sin((1-f) * deltaLat/2) * Math.sin((1-f) * deltaLat/2) + 
+    //           Math.cos(lat1Rad) * Math.cos(lat2Rad) * 
+    //           Math.sin((1-f) * deltaLon/2) * Math.sin((1-f) * deltaLon/2);
+    // const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     
     const lat = lat1Rad + f * deltaLat;
     const lon = lon1 + f * (lon2 - lon1);

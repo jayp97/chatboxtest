@@ -23,7 +23,7 @@ interface ChatRequest {
 export async function POST(req: Request) {
   try {
     const body: ChatRequest = await req.json();
-    const { message, threadId, userId, userPreferences } = body;
+    const { message, threadId, userId } = body;
 
     // Validate required fields
     if (!message) {
@@ -56,17 +56,8 @@ export async function POST(req: Request) {
 
     try {
       
-      // Build context message with user preferences for working memory
-      const contextMessage = userPreferences 
-        ? `GEOSYS PROFILE UPDATE: User has provided geographic preferences.
-          Favourite Country: ${userPreferences.favouriteCountry || "Not provided"}
-          Favourite Continent: ${userPreferences.favouriteContinent || "Not provided"}  
-          Favourite Destination: ${userPreferences.favouriteDestination || "Not provided"}
-          
-          Please update your working memory with these preferences and reference them naturally in responses.`
-        : "";
-
       // Agent execution initiated
+      console.log("[API] Executing agent with message:", message);
 
       // Execute the agent with streaming
       const response = await geographyExpert.stream(
@@ -85,6 +76,8 @@ export async function POST(req: Request) {
           temperature: 0.7,
         }
       );
+      
+      console.log("[API] Agent response received, streaming started");
 
       // Create a readable stream for the response
       const encoder = new TextEncoder();
@@ -93,14 +86,24 @@ export async function POST(req: Request) {
           try {
             // Stream the text response
             if (response.textStream) {
+              console.log("[API] Text stream available, starting to stream chunks");
+              let chunkCount = 0;
               for await (const chunk of response.textStream) {
+                chunkCount++;
                 controller.enqueue(encoder.encode(chunk));
               }
+              console.log(`[API] Streamed ${chunkCount} chunks successfully`);
+            } else {
+              console.log("[API] No text stream available in response");
+              controller.enqueue(
+                encoder.encode("SYSTEM ERROR: No response generated.")
+              );
             }
             
             // Close the stream when done
             controller.close();
-          } catch {
+          } catch (error) {
+            console.error("[API] Stream error:", error);
             controller.enqueue(
               encoder.encode("\n\nSYSTEM ERROR: Stream interrupted. Please try again.")
             );

@@ -59,7 +59,7 @@ export const countryInfoTool = createTool({
       
       // Extract currency names
       const currencies = Object.values(countryData.currencies || {}).map(
-        (curr: any) => curr.name
+        (curr: unknown) => (curr as { name: string }).name
       ) as string[];
       
       // Get continent name
@@ -97,12 +97,12 @@ export const countryInfoTool = createTool({
 });
 
 // Helper function to generate interesting facts about a country
-function generateFunFacts(countryData: any): string[] {
+function generateFunFacts(countryData: Record<string, unknown>): string[] {
   const facts: string[] = [];
   
   // Population density fact
   if (countryData.population && countryData.area) {
-    const density = Math.round(countryData.population / countryData.area);
+    const density = Math.round(Number(countryData.population) / Number(countryData.area));
     facts.push(
       `The population density is ${density} people per square kilometre`
     );
@@ -114,10 +114,11 @@ function generateFunFacts(countryData: any): string[] {
   }
   
   // Border fact
-  if (countryData.borders && countryData.borders.length > 0) {
+  const borders = countryData.borders as string[] | undefined;
+  if (borders && borders.length > 0) {
     facts.push(
-      `Shares borders with ${countryData.borders.length} ${
-        countryData.borders.length === 1 ? "country" : "countries"
+      `Shares borders with ${borders.length} ${
+        borders.length === 1 ? "country" : "countries"
       }`
     );
   } else {
@@ -125,39 +126,44 @@ function generateFunFacts(countryData: any): string[] {
   }
   
   // Timezone fact
-  if (countryData.timezones && countryData.timezones.length > 1) {
+  const timezones = countryData.timezones as string[] | undefined;
+  if (timezones && timezones.length > 1) {
     facts.push(
-      `Spans ${countryData.timezones.length} different time zones`
+      `Spans ${timezones.length} different time zones`
     );
   }
   
   // Capital fact
-  if (countryData.capital && countryData.capital.length > 1) {
+  const capitals = countryData.capital as string[] | undefined;
+  if (capitals && capitals.length > 1) {
     facts.push(
-      `Has ${countryData.capital.length} capital cities`
+      `Has ${capitals.length} capital cities`
     );
   }
   
   // Area comparison
-  if (countryData.area) {
+  const area = countryData.area as number | undefined;
+  if (area) {
     const ukArea = 242495; // UK area in km²
-    const comparison = (countryData.area / ukArea).toFixed(1);
+    const comparison = (area / ukArea).toFixed(1);
     facts.push(
       `Approximately ${comparison}x the size of the United Kingdom`
     );
   }
   
   // Currency fact
-  if (countryData.currencies) {
-    const currencyCount = Object.keys(countryData.currencies).length;
+  const currencies = countryData.currencies as Record<string, unknown> | undefined;
+  if (currencies) {
+    const currencyCount = Object.keys(currencies).length;
     if (currencyCount > 1) {
       facts.push(`Uses ${currencyCount} different currencies`);
     }
   }
   
   // Language diversity
-  if (countryData.languages) {
-    const langCount = Object.keys(countryData.languages).length;
+  const languages = countryData.languages as Record<string, unknown> | undefined;
+  if (languages) {
+    const langCount = Object.keys(languages).length;
     if (langCount > 5) {
       facts.push(
         `Remarkably diverse with ${langCount} official languages`
@@ -171,9 +177,10 @@ function generateFunFacts(countryData: any): string[] {
   }
   
   // Driving side
-  if (countryData.car && countryData.car.side) {
+  const car = countryData.car as { side?: string } | undefined;
+  if (car && car.side) {
     facts.push(
-      `People drive on the ${countryData.car.side} side of the road`
+      `People drive on the ${car.side} side of the road`
     );
   }
   
@@ -183,3 +190,6 @@ function generateFunFacts(countryData: any): string[] {
 // Export type definitions
 export type CountryInfoInput = z.infer<typeof countryInfoInputSchema>;
 export type CountryInfoOutput = z.infer<typeof countryInfoOutputSchema>;
+
+// Export schemas for external use
+export { countryInfoInputSchema, countryInfoOutputSchema };

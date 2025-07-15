@@ -23,10 +23,10 @@ const updatePreferencesSchema = z.object({
 });
 
 export const updateUserPreferencesTool = createTool({
-  name: "updateUserPreferences",
+  id: "updateUserPreferences",
   description: "Update user's geographic preferences and notify UI components",
   inputSchema: updatePreferencesSchema,
-  execute: async ({ input }) => {
+  execute: async ({ context }) => {
     // Update user preferences
     
     try {
@@ -35,7 +35,7 @@ export const updateUserPreferencesTool = createTool({
       
       // Emit preference update event to notify the globe
       notifyPreferenceUpdate({
-        preferences: input,
+        preferences: context,
         timestamp: new Date().toISOString(),
         source: "mastra-tool"
       });
@@ -43,7 +43,7 @@ export const updateUserPreferencesTool = createTool({
       return {
         success: true,
         message: "Preferences updated successfully",
-        preferences: input
+        preferences: context
       };
     } catch (error) {
       console.error("❌ [TOOL] Failed to update preferences:", error);

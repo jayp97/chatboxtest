@@ -9,9 +9,6 @@ import { createTool } from "@mastra/core";
 import { 
   getCountryArt, 
   getWeatherArt, 
-  combineAsciiArt, 
-  createBorder, 
-  createAsciiTable,
   ASCII_SPECIAL 
 } from "@/utils/ascii-library";
 
@@ -36,7 +33,8 @@ const asciiOutputSchema = z.object({
 });
 
 // Country ASCII art library
-const countryAsciiArt: Record<string, { art: string; frames?: string[] }> = {
+/*
+const _countryAsciiArt: Record<string, { art: string; frames?: string[] }> = {
   japan: {
     art: `
        _____
@@ -263,9 +261,11 @@ const countryAsciiArt: Record<string, { art: string; frames?: string[] }> = {
     `,
   },
 };
+*/
 
 // Weather ASCII art library
-const weatherAsciiArt: Record<string, { art: string; frames?: string[] }> = {
+/*
+const _weatherAsciiArt: Record<string, { art: string; frames?: string[] }> = {
   "clear sky": {
     art: `
        \\   /
@@ -394,6 +394,7 @@ const weatherAsciiArt: Record<string, { art: string; frames?: string[] }> = {
     `,
   },
 };
+*/
 
 // Create the ASCII generator tool
 export const asciiGeneratorTool = createTool({
@@ -500,7 +501,8 @@ export const asciiGeneratorTool = createTool({
 });
 
 // Generate generic country art with name
-function generateGenericCountryArt(countryName: string) {
+/*
+function _generateGenericCountryArt(countryName: string) {
   const nameUpper = countryName.toUpperCase();
   const nameLength = nameUpper.length;
   const boxWidth = Math.max(nameLength + 4, 12);
@@ -524,6 +526,7 @@ function generateGenericCountryArt(countryName: string) {
     height: 6,
   };
 }
+*/
 
 // Helper function to create ASCII box
 export function createAsciiBox(content: string[], title?: string): string {
@@ -555,3 +558,6 @@ export function createAsciiBox(content: string[], title?: string): string {
 // Export type definitions
 export type AsciiInput = z.infer<typeof asciiInputSchema>;
 export type AsciiOutput = z.infer<typeof asciiOutputSchema>;
+
+// Export schemas for external use
+export { asciiInputSchema, asciiOutputSchema };

@@ -72,3 +72,4 @@ You must use the gpt-4.1 model
 ## Other
 
 - Do not pnpm run dev yourself. Just prompt me at the end of your response.
+- TypeScript with strict mode enabled, therefore all code must adhere to prevent build errors.

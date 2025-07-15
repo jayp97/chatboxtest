@@ -87,7 +87,7 @@ export function usePreferenceUpdates(options: UsePreferenceUpdatesOptions = {}) 
   }, [enabled]);
 
   // Manual trigger function
-  const triggerUpdate = (preferences?: any) => {
+  const triggerUpdate = (preferences?: Record<string, unknown>) => {
     notifyPreferenceUpdate({
       source: 'manual',
       preferences,
