@@ -106,51 +106,22 @@ export function GlobeContainer({
   useEffect(() => {
     const loadUserLocations = async () => {
       try {
-        console.log(
-          "🌍 [DEBUG] GlobeContainer - Starting to fetch user location pins..."
-        );
         const locations = await getUserLocationPins();
-        console.log(
-          "📍 [DEBUG] GlobeContainer - Loaded user locations:",
-          locations
-        );
-        console.log(
-          `🔢 [DEBUG] GlobeContainer - Setting ${locations.length} locations in state`
-        );
         setUserLocations(locations);
-        console.log(
-          "✅ [DEBUG] GlobeContainer - Locations successfully set for globe rendering"
-        );
       } catch (error) {
-        console.error(
-          "💥 [DEBUG] GlobeContainer - Failed to load user locations:",
-          error
-        );
+        console.error('Error loading user locations:', error);
         // Gracefully continue without pins
         setUserLocations([]);
       }
     };
 
     // Initial load after globe renders
-    console.log(
-      "⏱️ [DEBUG] GlobeContainer - Setting timer for initial location loading..."
-    );
     const initialTimer = setTimeout(loadUserLocations, 1000);
 
     // Listen for preference updates - NO POLLING!
-    console.log(
-      "👂 [DEBUG] GlobeContainer - Setting up preference update listener..."
-    );
-    const unsubscribe = preferenceEvents.onPreferenceUpdate((event) => {
-      console.log(
-        "🎯 [DEBUG] GlobeContainer - Preference update detected!",
-        event.detail
-      );
+    const unsubscribe = preferenceEvents.onPreferenceUpdate(() => {
       // Small delay to ensure localStorage is updated
       setTimeout(() => {
-        console.log(
-          "🔄 [DEBUG] GlobeContainer - Reloading user locations after preference update..."
-        );
         loadUserLocations();
       }, 100);
     });

@@ -83,15 +83,12 @@ async function loadTexture(path: string, name: string): Promise<THREE.Texture> {
           // texture.format = THREE.RedFormat; // Commented out to avoid format issues
         }
         
-        console.log(`Loaded ${name} bathymetry texture: ${path}`);
         resolve(texture);
       },
       (progress) => {
         const percent = (progress.loaded / progress.total * 100).toFixed(1);
-        console.log(`Loading ${name} bathymetry texture: ${percent}%`);
       },
       (error) => {
-        console.error(`Failed to load ${name} bathymetry texture:`, error);
         reject(new Error(`Failed to load ${name} texture: ${error instanceof Error ? error.message : 'Unknown error'}`));
       }
     );
@@ -102,11 +99,9 @@ async function loadTexture(path: string, name: string): Promise<THREE.Texture> {
 export async function loadBathymetryTextures(): Promise<BathymetryTextures> {
   // Return cached textures if available
   if (bathymetryCache && bathymetryCache.isLoaded) {
-    console.log('Using cached bathymetry textures');
     return bathymetryCache;
   }
 
-  console.log('Loading bathymetry textures...');
   
   try {
     // Load textures in parallel
@@ -126,7 +121,7 @@ export async function loadBathymetryTextures(): Promise<BathymetryTextures> {
     if (diffuseResult.status === 'fulfilled') {
       textures.diffuse = diffuseResult.value;
     } else {
-      console.warn('Failed to load diffuse bathymetry texture:', diffuseResult.reason);
+      console.error('Failed to load diffuse texture:', diffuseResult.reason);
       textures.hasErrors = true;
     }
     
@@ -134,7 +129,7 @@ export async function loadBathymetryTextures(): Promise<BathymetryTextures> {
     if (alphaResult.status === 'fulfilled') {
       textures.alpha = alphaResult.value;
     } else {
-      console.warn('Failed to load alpha bathymetry texture:', alphaResult.reason);
+      console.error('Failed to load alpha texture:', alphaResult.reason);
       textures.hasErrors = true;
     }
     
@@ -144,16 +139,11 @@ export async function loadBathymetryTextures(): Promise<BathymetryTextures> {
     // Cache the result
     bathymetryCache = textures;
     
-    console.log('Bathymetry textures loaded:', {
-      diffuse: !!textures.diffuse,
-      alpha: !!textures.alpha,
-      hasErrors: textures.hasErrors
-    });
     
     return textures;
     
   } catch (error) {
-    console.error('Failed to load bathymetry textures:', error);
+    console.error('Error loading bathymetry textures:', error);
     
     // Return empty textures as fallback
     const fallbackTextures: BathymetryTextures = {
@@ -298,9 +288,7 @@ export function createFallbackBathymetryMaterial(
 export async function preloadBathymetryTextures(): Promise<void> {
   try {
     await loadBathymetryTextures();
-    console.log('Bathymetry textures preloaded successfully');
   } catch (error) {
-    console.error('Failed to preload bathymetry textures:', error);
   }
 }
 
@@ -327,7 +315,6 @@ export function clearBathymetryCache(): void {
   }
   
   bathymetryCache = null;
-  console.log('Bathymetry texture cache cleared');
 }
 
 // Update material properties dynamically

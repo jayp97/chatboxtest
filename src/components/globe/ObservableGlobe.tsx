@@ -45,7 +45,6 @@ export function ObservableGlobe({
         setLoading(true);
         setError(null);
         
-        console.log('Loading Observable globe data...');
         
         // Load data in parallel
         const [demResult, bathymetryResult] = await Promise.allSettled([
@@ -57,27 +56,19 @@ export function ObservableGlobe({
         if (demResult.status === 'fulfilled' && demResult.value) {
           setDEMData(demResult.value);
           setHeightData(demResult.value.data);
-          console.log('DEM data loaded for Observable globe');
         } else if (threedee) {
-          console.warn('Failed to load DEM data:', demResult.status === 'rejected' ? demResult.reason : 'No data');
+          console.error('Failed to load DEM data:', demResult.status === 'rejected' ? demResult.reason : 'Unknown error');
         }
         
         // Process bathymetry textures
         if (bathymetryResult.status === 'fulfilled') {
           setBathymetryTextures(bathymetryResult.value);
-          console.log('Bathymetry textures loaded for Observable globe:', {
-            diffuse: !!bathymetryResult.value.diffuse,
-            alpha: !!bathymetryResult.value.alpha,
-            isLoaded: bathymetryResult.value.isLoaded,
-            hasErrors: bathymetryResult.value.hasErrors
-          });
         } else {
-          console.warn('Failed to load bathymetry textures:', bathymetryResult.reason);
+          console.error('Failed to load bathymetry textures:', bathymetryResult.status === 'rejected' ? bathymetryResult.reason : 'Unknown error');
         }
         
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-        console.error('Failed to load Observable globe data:', err);
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -91,7 +82,6 @@ export function ObservableGlobe({
   const sphereGeometry = useMemo(() => {
     if (loading) return null;
     
-    console.log('Creating Observable sphere geometry...');
     
     // Create smooth sphere with high segment count for perfect smoothness
     const segments = 128; // High quality smooth sphere regardless of radius
@@ -102,7 +92,6 @@ export function ObservableGlobe({
     
     // Apply Observable avertex() function to all vertices if 3D is enabled
     if (threedee && heightData) {
-      console.log('Applying Observable avertex() elevation mapping...');
       
       const positions = geometry.attributes.position;
       const vertexCount = positions.count;
@@ -123,7 +112,6 @@ export function ObservableGlobe({
       positions.needsUpdate = true;
       geometry.computeVertexNormals();
       
-      console.log('Observable avertex() elevation applied with subtle scaling');
     }
     
     return geometry;
@@ -211,21 +199,10 @@ export function ObservableGlobe({
   
   // Debug logging for material state
   useEffect(() => {
-    console.log('Observable globe material state:', {
-      mode,
-      debugMode,
-      hasTextures: !!bathymetryTextures,
-      texturesLoaded: bathymetryTextures?.isLoaded,
-      materialType: sphereMaterial.type,
-      materialColor: sphereMaterial.color?.getHexString(),
-      hasMap: !!sphereMaterial.map,
-      transparent: sphereMaterial.transparent,
-      opacity: sphereMaterial.opacity
-    });
   }, [mode, debugMode, bathymetryTextures, sphereMaterial]);
 
   // Animation frame handler
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (!animated || !sphereRef.current) return;
 
     // Slow rotation like Observable - rotate around Y axis for proper Earth rotation
@@ -250,7 +227,6 @@ export function ObservableGlobe({
   }
 
   if (error) {
-    console.error('Observable Globe Error:', error);
     return (
       <group name="error-observable-globe">
         <mesh position={[0, 0, 0]}>

@@ -42,12 +42,10 @@ export async function loadDEMData(config: Partial<ElevationConfig> = {}): Promis
   
   // Return cached data if available
   if (demDataCache && demDataCache.isLoaded) {
-    console.log('Using cached DEM data');
     return demDataCache;
   }
 
   try {
-    console.log(`Loading DEM data from ${finalConfig.demPath}`);
     
     // Load texture
     const loader = new THREE.TextureLoader();
@@ -56,7 +54,6 @@ export async function loadDEMData(config: Partial<ElevationConfig> = {}): Promis
         finalConfig.demPath,
         resolve,
         (progress) => {
-          console.log(`DEM loading progress: ${(progress.loaded / progress.total * 100).toFixed(1)}%`);
         },
         reject
       );
@@ -98,11 +95,10 @@ export async function loadDEMData(config: Partial<ElevationConfig> = {}): Promis
       isLoaded: true,
     };
     
-    console.log(`DEM data loaded: ${canvas.width}x${canvas.height} pixels`);
     return demDataCache;
     
   } catch (error) {
-    console.error('Failed to load DEM data:', error);
+    console.error('Error loading DEM data:', error);
     
     // Return empty DEM data as fallback
     demDataCache = {
@@ -186,11 +182,9 @@ export function applySphereElevation(
   const finalConfig = { ...DEFAULT_CONFIG, ...config };
   
   if (!demData.isLoaded) {
-    console.warn('DEM data not loaded, skipping elevation');
     return geometry;
   }
 
-  console.log('Applying DEM elevation to sphere geometry...');
   
   // Get vertex positions
   const positions = geometry.attributes.position;
@@ -214,7 +208,6 @@ export function applySphereElevation(
   // Recompute normals for proper lighting
   geometry.computeVertexNormals();
   
-  console.log('DEM elevation applied successfully');
   return geometry;
 }
 
@@ -314,9 +307,8 @@ export function getDEMTexture(): THREE.Texture | null {
 export async function preloadDEMData(config: Partial<ElevationConfig> = {}): Promise<void> {
   try {
     await loadDEMData(config);
-    console.log('DEM data preloaded successfully');
   } catch (error) {
-    console.error('Failed to preload DEM data:', error);
+    console.error('Error preloading DEM data:', error);
   }
 }
 
@@ -327,7 +319,6 @@ export function clearDEMCache(): void {
     demTexture.dispose();
     demTexture = null;
   }
-  console.log('DEM cache cleared');
 }
 
 // Get DEM statistics

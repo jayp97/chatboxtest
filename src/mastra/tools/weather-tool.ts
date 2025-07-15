@@ -139,7 +139,7 @@ export const weatherTool = createTool({
         sunset: daily.sunset[0],
       };
     } catch (error) {
-      console.error(`[WEATHER ERROR] ${error}`);
+      console.error('Error fetching weather data:', error);
       throw new Error(
         `ATMOSPHERIC SENSOR ERROR: Unable to retrieve weather data for "${location}". ` +
         `Signal interference detected. Please verify location name.`

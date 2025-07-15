@@ -43,7 +43,7 @@ export const updateUserPreferencesTool = createTool({
         preferences: context
       };
     } catch (error) {
-      console.error("❌ [TOOL] Failed to update preferences:", error);
+      console.error('Error updating preferences:', error);
       return {
         success: false,
         message: "Failed to update preferences",

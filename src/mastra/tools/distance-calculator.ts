@@ -84,7 +84,7 @@ export const distanceCalculatorTool = createTool({
         drivingTime,
       };
     } catch (error) {
-      console.error(`[DISTANCE CALCULATOR ERROR] ${error}`);
+      console.error('Error calculating distance:', error);
       throw new Error(
         `NAVIGATION SYSTEM ERROR: Unable to calculate distance. ` +
         `Please verify location names and try again.`

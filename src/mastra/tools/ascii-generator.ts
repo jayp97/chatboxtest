@@ -6,18 +6,30 @@
 
 import { z } from "zod";
 import { createTool } from "@mastra/core";
-import { 
-  getCountryArt, 
-  getWeatherArt, 
-  ASCII_SPECIAL 
+import {
+  getCountryArt,
+  getWeatherArt,
+  ASCII_SPECIAL,
 } from "@/utils/ascii-library";
 
 // Define the input schema
 const asciiInputSchema = z.object({
-  type: z.enum(["country", "weather", "special"]).describe("Type of ASCII art to generate"),
-  value: z.string().describe("Country name, weather condition, or special effect"),
-  animated: z.boolean().optional().default(false).describe("Whether to include animation frames"),
-  showLandmark: z.boolean().optional().default(false).describe("Show landmark for countries"),
+  type: z
+    .enum(["country", "weather", "special"])
+    .describe("Type of ASCII art to generate"),
+  value: z
+    .string()
+    .describe("Country name, weather condition, or special effect"),
+  animated: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe("Whether to include animation frames"),
+  showLandmark: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe("Show landmark for countries"),
 });
 
 // Define the output schema
@@ -25,7 +37,10 @@ const asciiOutputSchema = z.object({
   type: z.enum(["country", "weather", "special"]),
   name: z.string(),
   art: z.string().describe("Primary ASCII art"),
-  frames: z.array(z.string()).optional().describe("Animation frames if animated"),
+  frames: z
+    .array(z.string())
+    .optional()
+    .describe("Animation frames if animated"),
   animationSpeed: z.number().optional().describe("Milliseconds between frames"),
   width: z.number().describe("Width of the ASCII art"),
   height: z.number().describe("Height of the ASCII art"),
@@ -399,29 +414,30 @@ const _weatherAsciiArt: Record<string, { art: string; frames?: string[] }> = {
 // Create the ASCII generator tool
 export const asciiGeneratorTool = createTool({
   id: "ascii-generator",
-  description: "Generate dynamic ASCII art for countries and weather conditions",
+  description:
+    "Generate dynamic ASCII art for countries and weather conditions",
   inputSchema: asciiInputSchema,
-  
+
   execute: async ({ context }) => {
     const { type, value, animated, showLandmark } = context;
     try {
       if (type === "country") {
         const countryData = getCountryArt(value);
-        
+
         let artToUse = countryData.static;
         let frames: string[] | undefined;
-        
+
         if (showLandmark && countryData.landmark) {
           artToUse = countryData.landmark;
         } else if (animated && countryData.animated) {
-          frames = countryData.animated.frames.map(f => f.content);
+          frames = countryData.animated.frames.map((f) => f.content);
           artToUse = frames[0] || countryData.static;
         }
-        
-        const lines = artToUse.trim().split('\n');
-        const width = Math.max(...lines.map(l => l.length));
+
+        const lines = artToUse.trim().split("\n");
+        const width = Math.max(...lines.map((l) => l.length));
         const height = lines.length;
-        
+
         return {
           type: "country",
           name: value,
@@ -434,7 +450,7 @@ export const asciiGeneratorTool = createTool({
         };
       } else if (type === "weather") {
         const weatherAnimation = getWeatherArt(value);
-        
+
         if (!weatherAnimation) {
           // Return generic weather art
           return {
@@ -449,17 +465,19 @@ export const asciiGeneratorTool = createTool({
             height: 4,
           };
         }
-        
+
         const firstFrame = weatherAnimation.frames[0];
-        const lines = firstFrame.content.trim().split('\n');
-        const width = Math.max(...lines.map(l => l.length));
+        const lines = firstFrame.content.trim().split("\n");
+        const width = Math.max(...lines.map((l) => l.length));
         const height = lines.length;
-        
+
         return {
           type: "weather",
           name: value,
           art: firstFrame.content.trim(),
-          frames: animated ? weatherAnimation.frames.map(f => f.content) : undefined,
+          frames: animated
+            ? weatherAnimation.frames.map((f) => f.content)
+            : undefined,
           animationSpeed: animated ? 300 : undefined,
           width,
           height,
@@ -467,7 +485,7 @@ export const asciiGeneratorTool = createTool({
       } else if (type === "special") {
         // Handle special ASCII art
         const specialArt = ASCII_SPECIAL[value as keyof typeof ASCII_SPECIAL];
-        
+
         if (!specialArt) {
           return {
             type: "special",
@@ -477,11 +495,11 @@ export const asciiGeneratorTool = createTool({
             height: 1,
           };
         }
-        
-        const lines = specialArt.trim().split('\n');
-        const width = Math.max(...lines.map(l => l.length));
+
+        const lines = specialArt.trim().split("\n");
+        const width = Math.max(...lines.map((l) => l.length));
         const height = lines.length;
-        
+
         return {
           type: "special",
           name: value,
@@ -491,56 +509,37 @@ export const asciiGeneratorTool = createTool({
         };
       }
     } catch (error) {
-      console.error(`[ASCII GENERATOR ERROR] ${error}`);
+      console.error("Error generating ASCII art:", error);
       throw new Error(
         `ASCII RENDER ERROR: Unable to generate art for "${value}". ` +
-        `Terminal graphics subsystem malfunction.`
+          `Terminal graphics subsystem malfunction.`
       );
     }
   },
 });
 
-// Generate generic country art with name
-/*
-function _generateGenericCountryArt(countryName: string) {
-  const nameUpper = countryName.toUpperCase();
-  const nameLength = nameUpper.length;
-  const boxWidth = Math.max(nameLength + 4, 12);
-  const padding = Math.floor((boxWidth - nameLength - 2) / 2);
-  const paddingRight = boxWidth - nameLength - 2 - padding;
-  
-  const art = [
-    "╭" + "─".repeat(boxWidth - 2) + "╮",
-    "│" + " ".repeat(padding) + nameUpper + " ".repeat(paddingRight) + "│",
-    "│" + " ".repeat(Math.floor((boxWidth - 2) / 2 - 1)) + "◆◆" + " ".repeat(Math.ceil((boxWidth - 2) / 2 - 1)) + "│",
-    "│" + " ".repeat(Math.floor((boxWidth - 4) / 2)) + "◆◆◆◆" + " ".repeat(Math.ceil((boxWidth - 4) / 2)) + "│",
-    "│" + " ".repeat(Math.floor((boxWidth - 2) / 2 - 1)) + "◆◆" + " ".repeat(Math.ceil((boxWidth - 2) / 2 - 1)) + "│",
-    "╰" + "─".repeat(boxWidth - 2) + "╯",
-  ].join('\n');
-  
-  return {
-    type: "country" as const,
-    name: countryName,
-    art,
-    width: boxWidth,
-    height: 6,
-  };
-}
-*/
-
 // Helper function to create ASCII box
 export function createAsciiBox(content: string[], title?: string): string {
-  const width = Math.max(...content.map(line => line.length), title?.length || 0) + 4;
+  const width =
+    Math.max(...content.map((line) => line.length), title?.length || 0) + 4;
   const lines = [];
-  
+
   // Top border
   if (title) {
     const titlePadding = Math.floor((width - title.length - 2) / 2);
-    lines.push("╭" + "─".repeat(titlePadding) + " " + title + " " + "─".repeat(width - titlePadding - title.length - 3) + "╮");
+    lines.push(
+      "╭" +
+        "─".repeat(titlePadding) +
+        " " +
+        title +
+        " " +
+        "─".repeat(width - titlePadding - title.length - 3) +
+        "╮"
+    );
   } else {
     lines.push("╭" + "─".repeat(width - 2) + "╮");
   }
-  
+
   // Content
   for (const line of content) {
     const padding = width - line.length - 2;
@@ -548,11 +547,11 @@ export function createAsciiBox(content: string[], title?: string): string {
     const rightPad = padding - leftPad;
     lines.push("│" + " ".repeat(leftPad) + line + " ".repeat(rightPad) + "│");
   }
-  
+
   // Bottom border
   lines.push("╰" + "─".repeat(width - 2) + "╯");
-  
-  return lines.join('\n');
+
+  return lines.join("\n");
 }
 
 // Export type definitions

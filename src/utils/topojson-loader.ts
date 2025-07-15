@@ -61,7 +61,6 @@ async function loadTopoJSON(url: string, maxRetries: number = 3): Promise<TopoJS
   
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      console.log(`Loading TopoJSON from ${url} (attempt ${attempt + 1})`);
       
       const response = await fetch(url, {
         headers: {
@@ -83,13 +82,12 @@ async function loadTopoJSON(url: string, maxRetries: number = 3): Promise<TopoJS
       
       // Cache successful load
       topologyCache.set(url, topology);
-      console.log(`Successfully loaded TopoJSON from ${url}`);
       
       return topology;
       
     } catch (error) {
+      console.error(`TopoJSON load attempt ${attempt + 1} failed:`, error);
       lastError = error as Error;
-      console.warn(`Failed to load ${url} (attempt ${attempt + 1}):`, error);
       
       // Wait before retry (exponential backoff)
       if (attempt < maxRetries - 1) {
@@ -130,7 +128,7 @@ export async function loadLandBoundaries(resolution: 'high' | 'medium' | 'low' =
     const topology = await loadTopoJSON(url);
     return generateMesh(topology, topology.objects.land);
   } catch (error) {
-    console.error('Failed to load land boundaries:', error);
+    console.error('Error loading land boundaries:', error);
     return getFallbackLandMesh();
   }
 }
@@ -143,7 +141,7 @@ export async function loadCountryBoundaries(resolution: 'high' | 'medium' | 'low
     const topology = await loadTopoJSON(url);
     return generateMesh(topology, topology.objects.countries, (a, b) => a !== b);
   } catch (error) {
-    console.error('Failed to load country boundaries:', error);
+    console.error('Error loading country boundaries:', error);
     return getFallbackCountryMesh();
   }
 }
@@ -154,7 +152,6 @@ export async function loadCoastlines(): Promise<MeshData> {
     const topology = await loadTopoJSON(WORLD_ATLAS_URLS.coastlines50m);
     return generateMesh(topology, topology.objects.coastlines);
   } catch (error) {
-    console.error('Failed to load coastlines:', error);
     // Fall back to land boundaries
     return loadLandBoundaries('medium');
   }
@@ -163,7 +160,6 @@ export async function loadCoastlines(): Promise<MeshData> {
 // Load all world atlas data
 export async function loadWorldAtlasData(resolution: 'high' | 'medium' | 'low' = 'medium'): Promise<WorldAtlasData> {
   try {
-    console.log('Loading world atlas data...');
     
     const [land, countries, coastlines] = await Promise.allSettled([
       loadLandBoundaries(resolution),
@@ -180,11 +176,9 @@ export async function loadWorldAtlasData(resolution: 'high' | 'medium' | 'low' =
       result.coastlines = coastlines.value;
     }
     
-    console.log('World atlas data loaded successfully');
     return result;
     
   } catch (error) {
-    console.error('Failed to load world atlas data:', error);
     return getFallbackWorldData();
   }
 }
@@ -210,7 +204,6 @@ export function generateFeatures(topology: TopoJSONTopology, objectName: string)
       return [featureCollection as TopoJSONFeature];
     }
   } catch (error) {
-    console.error('Error generating features:', error);
     return [];
   }
 }
@@ -283,7 +276,6 @@ export function simplifyMesh(mesh: MeshData, tolerance: number = 0.1): MeshData 
 // Clear cache (useful for memory management)
 export function clearCache(): void {
   topologyCache.clear();
-  console.log('TopoJSON cache cleared');
 }
 
 // Get cache statistics

@@ -109,7 +109,7 @@ export function TerminalUI({ onCommand, className = "", userId, threadId }: Term
         }
       }
     } catch (error) {
-      console.error('Error checking preferences:', error);
+      console.error('Error checking user preferences:', error);
       addResponse("> ERROR: UNABLE TO ACCESS MEMORY CORE");
       addResponse("Proceeding without preferences...");
     }
@@ -263,7 +263,6 @@ export function TerminalUI({ onCommand, className = "", userId, threadId }: Term
                 }
                 
                 storeUserPreferences(userId, updates);
-                console.log("[ONBOARDING] Stored preferences from agent response:", updates);
                 
                 // ALWAYS notify globe to update pins after storing preferences
                 notifyPreferenceUpdate();
@@ -463,7 +462,6 @@ export function TerminalUI({ onCommand, className = "", userId, threadId }: Term
           }
           
           storeUserPreferences(userId, updates);
-          console.log("[TERMINAL-UI] Stored preferences in localStorage:", updates);
           
           // ALWAYS notify globe to update pins after storing preferences
           notifyPreferenceUpdate();
@@ -481,6 +479,7 @@ export function TerminalUI({ onCommand, className = "", userId, threadId }: Term
       }
       
     } catch (error) {
+      console.error('Error processing command:', error);
       setIsLoading(false);
       addResponse(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }

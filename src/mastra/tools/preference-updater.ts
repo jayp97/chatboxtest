@@ -94,7 +94,6 @@ export const preferenceUpdaterTool = createTool({
     // Notify the UI about the preference update
     // Just send a simple notification - the UI will fetch the data itself
     setTimeout(() => {
-      console.log("[PREFERENCE-TOOL] Notifying UI of preference update");
       notifyPreferenceUpdate();
     }, 500); // Much shorter delay since we're not waiting for memory
     
@@ -109,7 +108,6 @@ export const preferenceUpdaterTool = createTool({
     };
     
     // Preference update completed successfully
-    console.log("[PREFERENCE-TOOL] Tool execution complete:", result);
     
     return result;
   }

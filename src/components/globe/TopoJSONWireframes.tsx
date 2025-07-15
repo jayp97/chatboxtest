@@ -66,7 +66,7 @@ function createTubeGeometry(multilinestring: MeshData, radius: number): THREE.Gr
       group.add(tubeMesh);
       
     } catch (error) {
-      console.warn('Failed to create tube geometry for path:', error);
+      console.error('Error creating tube geometry:', error);
     }
   }
   
@@ -109,7 +109,6 @@ export function TopoJSONWireframes({
         setLoading(true);
         setError(null);
         
-        console.log('Loading TopoJSON world atlas data...');
         
         // Load world atlas data
         const atlasData = await loadWorldAtlasData(resolution);
@@ -117,16 +116,14 @@ export function TopoJSONWireframes({
         
         // Load DEM data if elevation is enabled
         if (enableElevation) {
-          console.log('Loading DEM elevation data...');
           const elevationData = await loadDEMData({ baseRadius: radius });
           setDEMData(elevationData);
         }
         
-        console.log('TopoJSON data loaded successfully');
         
       } catch (err) {
+        console.error('Error loading TopoJSON data:', err);
         const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-        console.error('Failed to load TopoJSON data:', err);
         setError(errorMessage);
       } finally {
         setLoading(false);
@@ -140,7 +137,6 @@ export function TopoJSONWireframes({
   const wireframes = useMemo(() => {
     if (!worldData) return null;
     
-    console.log('Creating TopoJSON wireframes...');
     const group = new THREE.Group();
     
     try {
@@ -195,7 +191,6 @@ export function TopoJSONWireframes({
       setError('Failed to create wireframes');
     }
     
-    console.log('TopoJSON wireframes created successfully');
     return group;
     
   }, [worldData, showLand, showCountries, showTubes, radius, materialManager]);
@@ -228,7 +223,6 @@ export function TopoJSONWireframes({
   if (!visible || loading) return null;
 
   if (error) {
-    console.error('TopoJSON Wireframes Error:', error);
     return null;
   }
 

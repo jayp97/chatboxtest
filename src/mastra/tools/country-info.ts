@@ -88,7 +88,7 @@ export const countryInfoTool = createTool({
         },
       };
     } catch (error) {
-      console.error(`[COUNTRY INFO ERROR] ${error}`);
+      console.error('Error fetching country info:', error);
       throw new Error(
         `GEOGRAPHIC DATABASE ERROR: Unable to retrieve data for "${country}". Please check the country name and try again.`
       );

@@ -34,11 +34,6 @@ function LocationPin({ location, globeRadius = 3 }: { location: Location; globeR
   const pinPosition = vertex([location.lng, location.lat], pinRadius);
   
   // Debug log the position
-  console.log(`📍 Pin "${location.name}" at lat:${location.lat} lng:${location.lng} -> pos:`, {
-    x: pinPosition.x.toFixed(2), 
-    y: pinPosition.y.toFixed(2), 
-    z: pinPosition.z.toFixed(2)
-  });
   
   // Pin colors based on type
   const colors = {
@@ -88,7 +83,7 @@ export function LocationPins({ locations, globeRadius = 3 }: LocationPinsProps) 
   const groupRef = useRef<THREE.Group>(null);
   
   // Rotate pins WITH the globe to keep them over their geographic locations
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (groupRef.current) {
       // Globe rotates at delta * 0.05 around Y axis
       // Reverse direction to match globe rotation
@@ -97,16 +92,6 @@ export function LocationPins({ locations, globeRadius = 3 }: LocationPinsProps) 
   });
   
   // Debug log locations
-  console.log('📍 [DEBUG] LocationPins rendering with:', {
-    locationCount: locations.length,
-    globeRadius,
-    locations: locations.map(loc => ({
-      name: loc.name,
-      lat: loc.lat,
-      lng: loc.lng,
-      type: loc.type
-    }))
-  });
   
   return (
     <group 

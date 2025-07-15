@@ -52,7 +52,6 @@ export function usePreferenceUpdates(options: UsePreferenceUpdatesOptions = {}) 
               
               // Check if this looks like a bot response with preference update
               if (checkForPreferenceUpdate(text)) {
-                console.log('🎯 Detected preference update in chat:', text.substring(0, 100));
                 lastMessageRef.current = text;
                 
                 // Emit update event

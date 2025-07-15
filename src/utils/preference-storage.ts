@@ -23,7 +23,6 @@ export function storeUserPreferences(userId: string, preferences: Partial<Stored
   const updated = { ...existing, ...preferences };
   
   localStorage.setItem(key, JSON.stringify(updated));
-  console.log(`[PREFERENCE-STORAGE] Stored preferences for ${userId}:`, updated);
 }
 
 export function getUserPreferences(userId: string): StoredPreferences {
@@ -34,11 +33,10 @@ export function getUserPreferences(userId: string): StoredPreferences {
     const stored = localStorage.getItem(key);
     if (stored) {
       const prefs = JSON.parse(stored);
-      console.log(`[PREFERENCE-STORAGE] Retrieved preferences for ${userId}:`, prefs);
       return prefs;
     }
   } catch (error) {
-    console.error('[PREFERENCE-STORAGE] Error reading from localStorage:', error);
+    console.error('Error parsing stored preferences:', error);
   }
   
   return {};
@@ -49,5 +47,4 @@ export function clearUserPreferences(userId: string) {
   
   const key = `${STORAGE_KEY_PREFIX}-${userId}`;
   localStorage.removeItem(key);
-  console.log(`[PREFERENCE-STORAGE] Cleared preferences for ${userId}`);
 }
