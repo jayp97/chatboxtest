@@ -148,7 +148,9 @@ export function GlobeContainer({
       );
       // Add a small delay to ensure memory is updated
       setTimeout(() => {
-        console.log("🔄 [DEBUG] GlobeContainer - Reloading user locations after preference update...");
+        console.log(
+          "🔄 [DEBUG] GlobeContainer - Reloading user locations after preference update..."
+        );
         loadUserLocations();
       }, 2000);
     });
@@ -192,12 +194,6 @@ export function GlobeContainer({
             shadows
             dpr={[1, 2]}
           >
-            {/* Performance monitor (debug mode) */}
-            {/* {showPerformanceMonitor && <Perf position="top-left" />} */}
-
-            {/* Star field background */}
-            {/* <StarField /> */}
-
             {/* Ambient lighting */}
             <ambientLight intensity={0.3} />
 
