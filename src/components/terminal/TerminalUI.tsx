@@ -12,7 +12,6 @@ import { BootSequence } from "./BootSequence";
 import { CommandLine } from "./CommandLine";
 import { LoadingIndicator } from "./LoadingIndicator";
 import { parseCommand } from "@/utils/terminal-commands";
-import { usePreferenceUpdates } from "@/components/chat/usePreferenceUpdates";
 import { notifyPreferenceUpdate } from "@/utils/preference-updater";
 
 interface TerminalUIProps {
@@ -42,8 +41,6 @@ export function TerminalUI({ onCommand, className = "", userId, threadId }: Term
     answers: {}
   });
   
-  // Hook to detect preference updates in chat
-  const { } = usePreferenceUpdates();
   const terminalRef = useRef<HTMLDivElement>(null);
 
 
