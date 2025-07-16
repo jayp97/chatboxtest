@@ -21,7 +21,6 @@ import { preferenceEvents } from "@/utils/preference-events";
 
 interface GlobeContainerProps {
   className?: string;
-  showGrid?: boolean;
   animateWireframes?: boolean;
 }
 
@@ -79,7 +78,6 @@ function GlobeErrorFallback({ error }: { error: Error }) {
 
 export function GlobeContainer({
   className = "",
-  showGrid = true,
   animateWireframes = true,
 }: GlobeContainerProps) {
   const [webGLSupported, setWebGLSupported] = useState(true);
@@ -109,7 +107,7 @@ export function GlobeContainer({
         const locations = await getUserLocationPins();
         setUserLocations(locations);
       } catch (error) {
-        console.error('Error loading user locations:', error);
+        console.error("Error loading user locations:", error);
         // Gracefully continue without pins
         setUserLocations([]);
       }
@@ -178,9 +176,7 @@ export function GlobeContainer({
 
             {/* Advanced globe with TopoJSON and DEM */}
             <WorldGlobe
-              showGrid={showGrid}
               animateWireframes={animateWireframes}
-              initialQuality="medium"
               showControls={false}
             />
 
