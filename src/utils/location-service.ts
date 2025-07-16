@@ -1,7 +1,7 @@
 /**
  * location-service.ts
- * Service for fetching user preferences with coordinates from Mastra memory
- * Works with AI-powered geocoding instead of hardcoded lookups
+ * Service for fetching user preferences with coordinates from localStorage
+ * Converts preferences and location queries into pins for globe display
  * Also handles location query pins for tracking user's geographic interests
  */
 
