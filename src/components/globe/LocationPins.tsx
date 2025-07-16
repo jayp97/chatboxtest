@@ -36,7 +36,7 @@ function LocationPin({ location, globeRadius = 3 }: { location: Location; globeR
   
   // Convert lat/lng to 3D coordinates using existing vertex function
   const pinRadius = globeRadius + 0.1; // Slightly above globe surface
-  const pinPosition = vertex([location.lng, location.lat], pinRadius);
+  const pinPosition = vertex(location.lng, location.lat, pinRadius);
   
   // Debug log the position
   

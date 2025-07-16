@@ -21,7 +21,7 @@ import { preferenceEvents } from "@/utils/preference-events";
 
 interface GlobeContainerProps {
   className?: string;
-  animateWireframes?: boolean;
+  animated?: boolean;
 }
 
 // Loading component with terminal style
@@ -78,7 +78,7 @@ function GlobeErrorFallback({ error }: { error: Error }) {
 
 export function GlobeContainer({
   className = "",
-  animateWireframes = true,
+  animated = true,
 }: GlobeContainerProps) {
   const [webGLSupported, setWebGLSupported] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -174,10 +174,9 @@ export function GlobeContainer({
               shadow-mapSize={[2048, 2048]}
             />
 
-            {/* Advanced globe with TopoJSON and DEM */}
+            {/* Globe with realistic rendering */}
             <WorldGlobe
-              animateWireframes={animateWireframes}
-              showControls={false}
+              animated={animated}
             />
 
             {/* Camera controls for interaction */}
